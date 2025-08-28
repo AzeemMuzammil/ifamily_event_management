@@ -1,6 +1,100 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import LoginModal from './LoginModal';
+
+interface LoginFormProps {
+  onClose: () => void;
+}
+
+const LoginForm = ({ onClose }: LoginFormProps) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login } = useAuth();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    const success = login(username, password);
+    
+    if (success) {
+      setUsername('');
+      setPassword('');
+      onClose();
+    } else {
+      setError('Invalid username or password');
+    }
+    
+    setIsLoading(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="mb-3">
+        <label htmlFor="username" className="form-label">
+          👤 Username
+        </label>
+        <input
+          type="text"
+          id="username"
+          className="form-control"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter your username"
+          required
+        />
+      </div>
+      
+      <div className="mb-3">
+        <label htmlFor="password" className="form-label">
+          🔒 Password
+        </label>
+        <input
+          type="password"
+          id="password"
+          className="form-control"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+
+      {error && (
+        <div className="alert alert-danger mb-3" role="alert">
+          <strong>⚠️ Error:</strong> {error}
+        </div>
+      )}
+
+      <div className="d-flex justify-content-end gap-2">
+        <button
+          type="button"
+          onClick={onClose}
+          className="btn btn-outline-secondary"
+          disabled={isLoading}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+              Logging in...
+            </>
+          ) : (
+            <>🚀 Login</>
+          )}
+        </button>
+      </div>
+    </form>
+  );
+};
 
 const Header = () => {
   const { isAuthenticated, logout } = useAuth();
@@ -8,8 +102,8 @@ const Header = () => {
 
   return (
     <header style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+      background: 'linear-gradient(135deg, var(--primary-color), var(--primary-600))',
+      boxShadow: 'var(--shadow-lg)',
       backdropFilter: 'blur(10px)'
     }}>
       <div className="container-fluid mobile-spacing-md">
@@ -111,10 +205,31 @@ const Header = () => {
         </div>
       </div>
       
-      <LoginModal 
-        isOpen={showLogin} 
-        onClose={() => setShowLogin(false)} 
-      />
+      {/* Inline Login Form */}
+      {showLogin && (
+        <div style={{
+          background: 'linear-gradient(135deg, var(--primary-50), var(--secondary-50))',
+          borderTop: '1px solid var(--border-light)',
+          padding: 'var(--space-6)',
+          boxShadow: 'var(--shadow-lg)'
+        }}>
+          <div className="container-fluid mobile-spacing-md">
+            <div className="row justify-content-center">
+              <div className="col-12 col-md-6 col-lg-4">
+                <div className="card">
+                  <div className="card-header text-center">
+                    <h5 className="mb-0">🔐 Admin Access</h5>
+                    <small className="text-muted">Secure login to manage events</small>
+                  </div>
+                  <div className="card-body">
+                    <LoginForm onClose={() => setShowLogin(false)} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

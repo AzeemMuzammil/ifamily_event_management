@@ -238,74 +238,78 @@ const Dashboard: React.FC = () => {
   const stats = getStats();
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container-fluid mobile-spacing-md">
       {/* Header */}
       <div className="text-center mb-4">
-        <h1 className="display-5 fw-bold mb-2" style={{
-          background: 'linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFB84D)',
+        <h1 className="mobile-title fw-bold mb-2" style={{
+          background: 'linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent-orange))',
           WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
         }}>
           🏆 iFamily Games Dashboard
         </h1>
-        <p className="text-muted">Track your family's amazing achievements and upcoming adventures!</p>
+        <p className="mobile-subtitle">Track your family's amazing achievements and upcoming adventures!</p>
       </div>
 
       {/* Quick Stats */}
-      <div className="row g-3 mb-4">
+      <div className="row mobile-gap-md mb-4">
         <div className="col-6 col-md-3">
-          <div className="card text-white" style={{
-            background: 'linear-gradient(135deg, #FF6B6B, #E55555)',
-            borderRadius: '16px',
-            minHeight: '100px'
+          <div className="card family-element" style={{
+            background: 'linear-gradient(135deg, var(--primary-color), var(--primary-600))',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            minHeight: '120px'
           }}>
-            <div className="card-body text-center">
-              <div style={{ fontSize: '2rem' }}>🏘️</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{stats.totalHouses}</div>
-              <div style={{ fontSize: '0.85rem', opacity: '0.9' }}>Houses</div>
+            <div className="card-body text-center d-flex flex-column justify-content-center">
+              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-2)' }}>🏘️</div>
+              <div className="h3 mb-1 fw-bold">{stats.totalHouses}</div>
+              <div style={{ fontSize: 'var(--font-size-sm)', opacity: '0.9' }}>Houses</div>
             </div>
           </div>
         </div>
 
         <div className="col-6 col-md-3">
-          <div className="card text-white" style={{
-            background: 'linear-gradient(135deg, #4ECDC4, #45B7B8)',
-            borderRadius: '16px',
-            minHeight: '100px'
+          <div className="card family-element" style={{
+            background: 'linear-gradient(135deg, var(--secondary-color), var(--secondary-600))',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            minHeight: '120px'
           }}>
-            <div className="card-body text-center">
-              <div style={{ fontSize: '2rem' }}>👥</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{stats.totalPlayers}</div>
-              <div style={{ fontSize: '0.85rem', opacity: '0.9' }}>Players</div>
+            <div className="card-body text-center d-flex flex-column justify-content-center">
+              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-2)' }}>👥</div>
+              <div className="h3 mb-1 fw-bold">{stats.totalPlayers}</div>
+              <div style={{ fontSize: 'var(--font-size-sm)', opacity: '0.9' }}>Players</div>
             </div>
           </div>
         </div>
 
         <div className="col-6 col-md-3">
-          <div className="card text-white" style={{
-            background: 'linear-gradient(135deg, #FFB84D, #E6B93A)',
-            borderRadius: '16px',
-            minHeight: '100px'
+          <div className="card family-element" style={{
+            background: 'linear-gradient(135deg, var(--accent-orange), #D97706)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            minHeight: '120px'
           }}>
-            <div className="card-body text-center">
-              <div style={{ fontSize: '2rem' }}>🎉</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{stats.completedEvents}</div>
-              <div style={{ fontSize: '0.85rem', opacity: '0.9' }}>Completed</div>
+            <div className="card-body text-center d-flex flex-column justify-content-center">
+              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-2)' }}>🎉</div>
+              <div className="h3 mb-1 fw-bold">{stats.completedEvents}</div>
+              <div style={{ fontSize: 'var(--font-size-sm)', opacity: '0.9' }}>Completed</div>
             </div>
           </div>
         </div>
 
         <div className="col-6 col-md-3">
-          <div className="card text-white" style={{
-            background: 'linear-gradient(135deg, #A8E6CF, #98E4D6)',
-            borderRadius: '16px',
-            minHeight: '100px',
-            color: '#2D3436'
+          <div className="card family-element" style={{
+            background: 'linear-gradient(135deg, var(--accent-purple), #7C3AED)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            minHeight: '120px'
           }}>
-            <div className="card-body text-center">
-              <div style={{ fontSize: '2rem' }}>📅</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>{stats.scheduledEvents}</div>
-              <div style={{ fontSize: '0.85rem', opacity: '0.8' }}>Upcoming</div>
+            <div className="card-body text-center d-flex flex-column justify-content-center">
+              <div style={{ fontSize: '2.5rem', marginBottom: 'var(--space-2)' }}>📅</div>
+              <div className="h3 mb-1 fw-bold">{stats.scheduledEvents}</div>
+              <div style={{ fontSize: 'var(--font-size-sm)', opacity: '0.9' }}>Upcoming</div>
             </div>
           </div>
         </div>
@@ -329,38 +333,36 @@ const Dashboard: React.FC = () => {
               ) : (
                 <div className="d-flex flex-column gap-3">
                   {houseScores.slice(0, 5).map((houseScore, index) => (
-                    <div key={houseScore.houseId} className="d-flex align-items-center justify-content-between p-3 rounded" style={{
+                    <div key={houseScore.houseId} className="d-flex align-items-center justify-content-between interactive" style={{
                       background: index === 0 
-                        ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.1))'
+                        ? 'linear-gradient(135deg, var(--warning-light), rgba(252, 211, 77, 0.1))'
                         : index === 1
-                        ? 'linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(160, 160, 160, 0.1))'
+                        ? 'linear-gradient(135deg, var(--text-light), rgba(209, 213, 219, 0.1))'
                         : index === 2
-                        ? 'linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(184, 115, 46, 0.1))'
-                        : 'rgba(0, 0, 0, 0.05)',
-                      border: index < 3 ? '2px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.1)'
+                        ? 'linear-gradient(135deg, rgba(146, 64, 14, 0.1), rgba(180, 83, 9, 0.05))'
+                        : 'var(--bg-secondary)',
+                      border: `1px solid ${index < 3 ? 'var(--border-color)' : 'var(--border-light)'}`,
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-4)',
+                      boxShadow: index < 3 ? 'var(--shadow-sm)' : 'var(--shadow-xs)'
                     }}>
-                      <div className="d-flex align-items-center">
-                        <div className="me-3" style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '50%',
+                      <div className="d-flex align-items-center mobile-gap-md">
+                        <div className="position-badge" style={{
                           background: houseScore.houseColor,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontWeight: 'bold'
+                          width: '48px',
+                          height: '48px',
+                          fontSize: 'var(--font-size-lg)'
                         }}>
                           {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1)}
                         </div>
                         <div>
-                          <h6 className="mb-1">{houseScore.houseName}</h6>
-                          <small className="text-muted">{houseScore.eventsWon} events won</small>
+                          <h6 className="mb-1" style={{ color: 'var(--text-primary)' }}>{houseScore.houseName}</h6>
+                          <small style={{ color: 'var(--text-secondary)' }}>{houseScore.eventsWon} events won</small>
                         </div>
                       </div>
                       <div className="text-end">
-                        <div className="h5 mb-0 text-primary">{houseScore.totalScore}</div>
-                        <small className="text-muted">points</small>
+                        <div className="h5 mb-0" style={{ color: 'var(--primary-color)' }}>{houseScore.totalScore}</div>
+                        <small style={{ color: 'var(--text-muted)' }}>points</small>
                       </div>
                     </div>
                   ))}
@@ -387,38 +389,36 @@ const Dashboard: React.FC = () => {
               ) : (
                 <div className="d-flex flex-column gap-3">
                   {playerScores.slice(0, 5).map((playerScore, index) => (
-                    <div key={playerScore.playerId} className="d-flex align-items-center justify-content-between p-3 rounded" style={{
+                    <div key={playerScore.playerId} className="d-flex align-items-center justify-content-between interactive" style={{
                       background: index === 0 
-                        ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.1))'
+                        ? 'linear-gradient(135deg, var(--warning-light), rgba(252, 211, 77, 0.1))'
                         : index === 1
-                        ? 'linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(160, 160, 160, 0.1))'
+                        ? 'linear-gradient(135deg, var(--text-light), rgba(209, 213, 219, 0.1))'
                         : index === 2
-                        ? 'linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(184, 115, 46, 0.1))'
-                        : 'rgba(0, 0, 0, 0.05)',
-                      border: index < 3 ? '2px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.1)'
+                        ? 'linear-gradient(135deg, rgba(146, 64, 14, 0.1), rgba(180, 83, 9, 0.05))'
+                        : 'var(--bg-secondary)',
+                      border: `1px solid ${index < 3 ? 'var(--border-color)' : 'var(--border-light)'}`,
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-4)',
+                      boxShadow: index < 3 ? 'var(--shadow-sm)' : 'var(--shadow-xs)'
                     }}>
-                      <div className="d-flex align-items-center">
-                        <div className="me-3" style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '50%',
+                      <div className="d-flex align-items-center mobile-gap-md">
+                        <div className="position-badge" style={{
                           background: playerScore.houseColor,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontWeight: 'bold'
+                          width: '48px',
+                          height: '48px',
+                          fontSize: 'var(--font-size-lg)'
                         }}>
                           {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1)}
                         </div>
                         <div>
-                          <h6 className="mb-1">{playerScore.playerName}</h6>
-                          <small className="text-muted">{playerScore.houseName} • {playerScore.eventsWon} events won</small>
+                          <h6 className="mb-1" style={{ color: 'var(--text-primary)' }}>{playerScore.playerName}</h6>
+                          <small style={{ color: 'var(--text-secondary)' }}>{playerScore.houseName} • {playerScore.eventsWon} events won</small>
                         </div>
                       </div>
                       <div className="text-end">
-                        <div className="h5 mb-0 text-primary">{playerScore.totalScore}</div>
-                        <small className="text-muted">points</small>
+                        <div className="h5 mb-0" style={{ color: 'var(--primary-color)' }}>{playerScore.totalScore}</div>
+                        <small style={{ color: 'var(--text-muted)' }}>points</small>
                       </div>
                     </div>
                   ))}
@@ -429,190 +429,126 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Recent Events */}
-        <div className="mobile-section">
-          <div className="mobile-section-header" style={{
-            background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05))',
-            borderRadius: '16px 16px 0 0',
-            padding: '1rem',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <h5 style={{ margin: 0, fontWeight: '600', color: '#333' }}>
-              🎉 Recent Events
-            </h5>
-          </div>
-          <div className="mobile-section-body" style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '0 0 16px 16px',
-            padding: '1rem',
-            border: '1px solid rgba(255, 255, 255, 0.2)'
-          }}>
-            {recentEvents.length === 0 ? (
-              <div className="mobile-empty-state" style={{ textAlign: 'center', padding: '2rem 0' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🎉</div>
-                <p style={{ color: '#666', margin: 0 }}>No completed events yet</p>
-              </div>
-            ) : (
-              <div className="mobile-card-stack" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {recentEvents.slice(0, 3).map(event => (
-                  <div key={event.id} className="mobile-event-card" style={{
-                    background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05))',
-                    border: '1px solid rgba(40, 167, 69, 0.2)',
-                    borderRadius: '12px',
-                    padding: '1rem',
-                    borderLeft: '4px solid #28a745'
-                  }}>
-                    <div style={{ fontWeight: '600', fontSize: '1rem', color: '#333', marginBottom: '0.5rem' }}>
-                      {event.name}
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{
-                        backgroundColor: 'rgba(108, 117, 125, 0.1)',
-                        color: '#6c757d',
-                        padding: '0.25rem 0.5rem',
-                        borderRadius: '8px',
-                        fontSize: '0.75rem',
-                        fontWeight: '500'
-                      }}>
-                        {getCategoryName(event.categoryId)}
-                      </span>
-                      <span style={{
-                        backgroundColor: 'rgba(13, 202, 240, 0.1)',
-                        color: '#0dcaf0',
-                        padding: '0.25rem 0.5rem',
-                        borderRadius: '8px',
-                        fontSize: '0.75rem',
-                        fontWeight: '500'
-                      }}>
-                        {event.type === 'individual' ? '👤 Individual' : '👥 Group'}
-                      </span>
-                      <span style={{
-                        backgroundColor: 'rgba(25, 135, 84, 0.1)',
-                        color: '#198754',
-                        padding: '0.25rem 0.5rem',
-                        borderRadius: '8px',
-                        fontSize: '0.75rem',
-                        fontWeight: '500'
-                      }}>
-                        ✅ Completed
-                      </span>
-                    </div>
-                    {event.results && event.results.length > 0 && (
-                      <div style={{ marginBottom: '0.5rem' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#666' }}>Winner: </span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '500', color: '#333' }}>
-                          {(() => {
-                            const winner = event.results.find(r => r.placement === 1);
-                            if (!winner) return 'No winner recorded';
-                            
-                            if (event.type === 'individual') {
-                              const player = players.find(p => p.id === winner.participantId);
-                              return player ? player.fullName : 'Unknown Player';
-                            } else {
-                              const house = houses.find(h => h.id === winner.participantId);
-                              return house ? house.name : 'Unknown House';
-                            }
-                          })()}
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title mb-0">
+                🎉 Recent Events
+              </h5>
+            </div>
+            <div className="card-body">
+              {recentEvents.length === 0 ? (
+                <div className="text-center py-4">
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+                  <p className="text-muted">No completed events yet</p>
+                </div>
+              ) : (
+                <div className="d-flex flex-column mobile-gap-md">
+                  {recentEvents.slice(0, 3).map(event => (
+                    <div key={event.id} className="interactive" style={{
+                      background: 'linear-gradient(135deg, var(--success-light), rgba(16, 185, 129, 0.05))',
+                      border: '1px solid var(--success-color)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-4)',
+                      borderLeft: `4px solid var(--success-color)`
+                    }}>
+                      <div className="mb-3">
+                        <h6 className="mb-1" style={{ color: 'var(--text-primary)' }}>
+                          {event.name}
+                        </h6>
+                      </div>
+                      <div className="d-flex flex-wrap mobile-gap-sm mb-3">
+                        <span className="badge bg-secondary">
+                          {getCategoryName(event.categoryId)}
+                        </span>
+                        <span className="badge bg-info">
+                          {event.type === 'individual' ? '👤 Individual' : '👥 Group'}
+                        </span>
+                        <span className="badge bg-success">
+                          ✅ Completed
                         </span>
                       </div>
-                    )}
-                    <div style={{ fontSize: '0.75rem', color: '#666' }}>
-                      Completed: {formatDate(event.endTime)}
+                      {event.results && event.results.length > 0 && (
+                        <div className="mb-2">
+                          <small style={{ color: 'var(--text-secondary)' }}>Winner: </small>
+                          <small style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
+                            {(() => {
+                              const winner = event.results.find(r => r.placement === 1);
+                              if (!winner) return 'No winner recorded';
+                              
+                              if (event.type === 'individual') {
+                                const player = players.find(p => p.id === winner.participantId);
+                                return player ? player.fullName : 'Unknown Player';
+                              } else {
+                                const house = houses.find(h => h.id === winner.participantId);
+                                return house ? house.name : 'Unknown House';
+                              }
+                            })()}
+                          </small>
+                        </div>
+                      )}
+                      <small style={{ color: 'var(--text-muted)' }}>
+                        Completed: {formatDate(event.endTime)}
+                      </small>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Upcoming Events */}
-        <div className="mobile-section">
-          <div className="mobile-section-header" style={{
-            background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(13, 110, 253, 0.05))',
-            borderRadius: '16px 16px 0 0',
-            padding: '1rem',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <h5 style={{ margin: 0, fontWeight: '600', color: '#333' }}>
-              📅 Upcoming Events
-            </h5>
-          </div>
-          <div className="mobile-section-body" style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '0 0 16px 16px',
-            padding: '1rem',
-            border: '1px solid rgba(255, 255, 255, 0.2)'
-          }}>
-            {upcomingEvents.length === 0 ? (
-              <div className="mobile-empty-state" style={{ textAlign: 'center', padding: '2rem 0' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📅</div>
-                <p style={{ color: '#666', margin: 0 }}>No upcoming events scheduled</p>
-              </div>
-            ) : (
-              <div className="mobile-card-stack" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {upcomingEvents.slice(0, 3).map(event => (
-                  <div key={event.id} className="mobile-event-card" style={{
-                    background: event.status === 'in-progress' 
-                      ? 'linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05))'
-                      : 'linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(13, 110, 253, 0.05))',
-                    border: event.status === 'in-progress' 
-                      ? '1px solid rgba(255, 193, 7, 0.2)'
-                      : '1px solid rgba(13, 110, 253, 0.2)',
-                    borderRadius: '12px',
-                    padding: '1rem',
-                    borderLeft: event.status === 'in-progress' 
-                      ? '4px solid #ffc107'
-                      : '4px solid #0d6efd'
-                  }}>
-                    <div style={{ fontWeight: '600', fontSize: '1rem', color: '#333', marginBottom: '0.5rem' }}>
-                      {event.name}
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title mb-0">
+                📅 Upcoming Events
+              </h5>
+            </div>
+            <div className="card-body">
+              {upcomingEvents.length === 0 ? (
+                <div className="text-center py-4">
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
+                  <p className="text-muted">No upcoming events scheduled</p>
+                </div>
+              ) : (
+                <div className="d-flex flex-column mobile-gap-md">
+                  {upcomingEvents.slice(0, 3).map(event => (
+                    <div key={event.id} className="interactive" style={{
+                      background: event.status === 'in-progress' 
+                        ? 'linear-gradient(135deg, var(--warning-light), rgba(245, 158, 11, 0.05))'
+                        : 'linear-gradient(135deg, var(--info-light), rgba(59, 130, 246, 0.05))',
+                      border: `1px solid ${event.status === 'in-progress' ? 'var(--warning-color)' : 'var(--info-color)'}`,
+                      borderRadius: 'var(--radius-lg)',
+                      padding: 'var(--space-4)',
+                      borderLeft: `4px solid ${event.status === 'in-progress' ? 'var(--warning-color)' : 'var(--info-color)'}`
+                    }}>
+                      <div className="mb-3">
+                        <h6 className="mb-1" style={{ color: 'var(--text-primary)' }}>
+                          {event.name}
+                        </h6>
+                      </div>
+                      <div className="d-flex flex-wrap mobile-gap-sm mb-3">
+                        <span className="badge bg-secondary">
+                          {getCategoryName(event.categoryId)}
+                        </span>
+                        <span className="badge bg-info">
+                          {event.type === 'individual' ? '👤 Individual' : '👥 Group'}
+                        </span>
+                        <span className={`badge ${event.status === 'in-progress' ? 'bg-warning' : 'bg-primary'}`}>
+                          {event.status === 'in-progress' ? '⏳ In Progress' : '📅 Scheduled'}
+                        </span>
+                      </div>
+                      <small style={{ color: 'var(--text-muted)' }}>
+                        {event.status === 'in-progress' ? 'Started: ' : 'Scheduled: '} 
+                        {formatDate(event.startTime)}
+                      </small>
                     </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{
-                        backgroundColor: 'rgba(108, 117, 125, 0.1)',
-                        color: '#6c757d',
-                        padding: '0.25rem 0.5rem',
-                        borderRadius: '8px',
-                        fontSize: '0.75rem',
-                        fontWeight: '500'
-                      }}>
-                        {getCategoryName(event.categoryId)}
-                      </span>
-                      <span style={{
-                        backgroundColor: 'rgba(13, 202, 240, 0.1)',
-                        color: '#0dcaf0',
-                        padding: '0.25rem 0.5rem',
-                        borderRadius: '8px',
-                        fontSize: '0.75rem',
-                        fontWeight: '500'
-                      }}>
-                        {event.type === 'individual' ? '👤 Individual' : '👥 Group'}
-                      </span>
-                      <span style={{
-                        backgroundColor: event.status === 'in-progress' 
-                          ? 'rgba(255, 193, 7, 0.1)'
-                          : 'rgba(13, 110, 253, 0.1)',
-                        color: event.status === 'in-progress' 
-                          ? '#ffc107'
-                          : '#0d6efd',
-                        padding: '0.25rem 0.5rem',
-                        borderRadius: '8px',
-                        fontSize: '0.75rem',
-                        fontWeight: '500'
-                      }}>
-                        {event.status === 'in-progress' ? '⏳ In Progress' : '📅 Scheduled'}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: '#666' }}>
-                      {event.status === 'in-progress' ? 'Started: ' : 'Scheduled: '} 
-                      {formatDate(event.startTime)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
