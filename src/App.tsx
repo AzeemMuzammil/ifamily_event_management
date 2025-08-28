@@ -9,9 +9,6 @@ import PlayerManagement from './pages/admin/PlayerManagement';
 import HouseManagement from './pages/admin/HouseManagement';
 import EventManagement from './pages/admin/EventManagement';
 
-// Import sample data utility for browser console access
-import './utils/sampleData';
-
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
 

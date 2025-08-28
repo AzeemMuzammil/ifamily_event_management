@@ -1,133 +1,113 @@
-import { useState, useEffect } from 'react';
-import { EventInstance, SpecialAward, PlayerCategory, EventStatus } from '../types';
-import { eventInstanceService, specialAwardService } from '../services/firestore';
+import React, { useState, useEffect } from 'react';
+import { Event, Category, Player, House } from '../types';
+import { eventRepository, categoryRepository, playerRepository, houseRepository } from '../database';
 
-const Agenda = () => {
-  const [events, setEvents] = useState<EventInstance[]>([]);
-  const [awards, setAwards] = useState<SpecialAward[]>([]);
+const Agenda: React.FC = () => {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [participants, setParticipants] = useState<Record<string, Player | House>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | EventStatus>('all');
-  const [categoryFilter, setCategoryFilter] = useState<'all' | PlayerCategory>('all');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'individual' | 'group'>('all');
-  const [selectedEvent, setSelectedEvent] = useState<EventInstance | null>(null);
+  
+  // Filters
+  const [statusFilter, setStatusFilter] = useState<'all' | Event['status']>('all');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | string>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | Event['type']>('all');
 
+  // Load data
   useEffect(() => {
     setIsLoading(true);
     setError(null);
 
-    // Set up real-time listener for all events
-    const unsubscribeEvents = eventInstanceService.subscribeToAll((eventsData) => {
-      setEvents(eventsData);
-      
-      // Load awards for completed events
-      loadAwardsForEvents(eventsData.filter(event => event.status === 'completed'));
+    // Set up real-time listeners
+    const unsubscribeEvents = eventRepository.subscribeToAllEvents((eventsList: Event[]) => {
+      setEvents(eventsList);
     });
 
+    const unsubscribeCategories = categoryRepository.subscribeToAllCategories((categoriesList: Category[]) => {
+      setCategories(categoriesList);
+    });
+
+    // Load participants (both players and houses) for name lookup
+    const loadParticipants = async () => {
+      try {
+        const [players, houses] = await Promise.all([
+          playerRepository.getAllPlayers(),
+          houseRepository.getAllHouses()
+        ]);
+        
+        const participantsMap: Record<string, Player | House> = {};
+        players.forEach(player => participantsMap[player.id] = player);
+        houses.forEach(house => participantsMap[house.id] = house);
+        
+        setParticipants(participantsMap);
+      } catch (err) {
+        console.error('Error loading participants:', err);
+      }
+    };
+
+    loadParticipants();
     setIsLoading(false);
 
-    // Cleanup listener on unmount
     return () => {
       unsubscribeEvents();
+      unsubscribeCategories();
     };
   }, []);
 
-  const loadAwardsForEvents = async (completedEvents: EventInstance[]) => {
-    try {
-      const allAwards: SpecialAward[] = [];
-      for (const event of completedEvents) {
-        const eventAwards = await specialAwardService.getByEventInstance(event.id);
-        allAwards.push(...eventAwards);
-      }
-      setAwards(allAwards);
-    } catch (err) {
-      console.error('Error loading awards:', err);
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    return category ? category.label : 'Unknown Category';
+  };
+
+  const getParticipantName = (participantId: string) => {
+    const participant = participants[participantId];
+    if (!participant) return 'Unknown';
+    
+    if ('fullName' in participant) {
+      return participant.fullName; // Player
+    } else {
+      return participant.name; // House
     }
   };
 
-  const loadEvents = async () => {
-    // This function is kept for backwards compatibility but not used
-    // Real-time listeners handle the data loading now
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const eventsData = await eventInstanceService.getAll();
-      
-      const allAwards: SpecialAward[] = [];
-      const completedEvents = eventsData.filter(event => event.status === 'completed');
-      
-      for (const event of completedEvents) {
-        const eventAwards = await specialAwardService.getByEventInstance(event.id);
-        allAwards.push(...eventAwards);
-      }
-
-      setEvents(eventsData);
-      setAwards(allAwards);
-    } catch (err) {
-      console.error('Error loading events:', err);
-      setError('Failed to load events');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getCategoryName = (category: string) => {
-    const names: Record<string, string> = {
-      kids: 'Kids',
-      elders: 'Elders',
-      adult_men: 'Men',
-      adult_women: 'Women'
-    };
-    return names[category] || category;
-  };
-
-  const getStatusBadge = (status: EventStatus) => {
-    const badges = {
-      scheduled: 'bg-gray-100 text-gray-700',
-      'in-progress': 'bg-yellow-100 text-yellow-700',
-      completed: 'bg-green-100 text-green-700'
-    };
-    return badges[status];
+  const getScoreForPlacement = (event: Event, placement: number) => {
+    return event.scoring[placement] || 0;
   };
 
   const formatDate = (date?: Date) => {
     if (!date) return 'Not scheduled';
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('en-US', {
       weekday: 'short',
-      month: 'short', 
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  const getEventAwards = (eventId: string) => {
-    return awards.filter(award => award.eventInstanceId === eventId);
-  };
-
+  // Filter events
   const filteredEvents = events.filter(event => {
     if (statusFilter !== 'all' && event.status !== statusFilter) return false;
-    if (categoryFilter !== 'all' && event.category !== categoryFilter) return false;
+    if (categoryFilter !== 'all' && event.categoryId !== categoryFilter) return false;
     if (typeFilter !== 'all' && event.type !== typeFilter) return false;
     return true;
   });
 
-  const groupedEvents = filteredEvents.reduce((groups, event) => {
-    const key = event.baseEventName;
-    if (!groups[key]) {
-      groups[key] = [];
-    }
-    groups[key].push(event);
-    return groups;
-  }, {} as Record<string, EventInstance[]>);
-
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="d-flex justify-content-center align-items-center" style={{height: '400px'}}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading events...</p>
+          <div className="spinner-custom mx-auto mb-3 pulse-animation"></div>
+          <div style={{
+            background: 'linear-gradient(45deg, #FF6B6B, #4ECDC4)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontSize: '1.2rem',
+            fontWeight: '600'
+          }}>
+            📅 Loading agenda...
+          </div>
         </div>
       </div>
     );
@@ -135,207 +115,428 @@ const Agenda = () => {
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <div className="text-red-600 mb-4">{error}</div>
-        <button 
-          onClick={loadEvents}
-          className="btn-primary"
-        >
-          Try Again
-        </button>
+      <div className="text-center py-5">
+        <div className="alert alert-danger glow-effect" style={{maxWidth: '400px'}} role="alert">
+          <h5 className="alert-heading">🚨 Something went wrong</h5>
+          {error}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Events Agenda</h1>
-        <p className="text-gray-600 mt-2">View all scheduled, ongoing, and completed events</p>
+    <div className="container-fluid mobile-spacing-md">
+      {/* Header */}
+      <div className="text-center mb-5 fade-in-up">
+        <h1 className="mobile-title" style={{
+          background: 'linear-gradient(45deg, #FF6B6B, #4ECDC4)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          fontWeight: '700',
+          marginBottom: '0.5rem'
+        }}>
+          📅 Events Agenda
+        </h1>
+        <p className="mobile-subtitle" style={{
+          color: 'rgba(255, 255, 255, 0.9)',
+          fontWeight: '500',
+          textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+          marginBottom: '2rem'
+        }}>
+          Track all scheduled, ongoing, and completed events
+        </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-          <div className="flex flex-wrap gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      {/* Filters */}
+      <div className="card mb-5 fade-in-up" style={{
+        border: 'none',
+        borderRadius: '24px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+        overflow: 'hidden'
+      }}>
+        <div className="card-header" style={{
+          background: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
+          color: 'white',
+          border: 'none',
+          padding: '2rem'
+        }}>
+          <div className="text-center">
+            <h5 className="card-title mb-1" style={{ fontSize: '1.5rem', fontWeight: '700' }}>
+              🔍 Filter Events
+            </h5>
+            <p className="mb-0" style={{ opacity: '0.9' }}>
+              Customize your view by status, category, and type
+            </p>
+          </div>
+        </div>
+        <div className="card-body mobile-spacing-xl">
+          <div className="row g-4">
+            <div className="col-12 col-md-6 col-lg-3">
+              <label className="form-label fw-bold mb-3" style={{
+                color: 'var(--text-primary)',
+                fontSize: '1.1rem'
+              }}>
+                📊 Status
+              </label>
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as 'all' | EventStatus)}
-                className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | Event['status'])}
+                className="form-select"
+                style={{
+                  padding: '1rem 1.5rem',
+                  fontSize: '1.1rem',
+                  borderRadius: '16px',
+                  border: '2px solid var(--border-color)',
+                  background: 'var(--bg-light)'
+                }}
               >
                 <option value="all">All Status</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
+                <option value="scheduled">📅 Scheduled</option>
+                <option value="in-progress">⏳ In Progress</option>
+                <option value="completed">✅ Completed</option>
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <div className="col-12 col-md-6 col-lg-3">
+              <label className="form-label fw-bold mb-3" style={{
+                color: 'var(--text-primary)',
+                fontSize: '1.1rem'
+              }}>
+                🏷️ Category
+              </label>
               <select
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value as 'all' | PlayerCategory)}
-                className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="form-select"
+                style={{
+                  padding: '1rem 1.5rem',
+                  fontSize: '1.1rem',
+                  borderRadius: '16px',
+                  border: '2px solid var(--border-color)',
+                  background: 'var(--bg-light)'
+                }}
               >
                 <option value="all">All Categories</option>
-                <option value="kids">Kids</option>
-                <option value="elders">Elders</option>
-                <option value="adult_men">Men</option>
-                <option value="adult_women">Women</option>
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.label}
+                  </option>
+                ))}
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <div className="col-12 col-md-6 col-lg-3">
+              <label className="form-label fw-bold mb-3" style={{
+                color: 'var(--text-primary)',
+                fontSize: '1.1rem'
+              }}>
+                👥 Type
+              </label>
               <select
                 value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value as 'all' | 'individual' | 'group')}
-                className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) => setTypeFilter(e.target.value as 'all' | Event['type'])}
+                className="form-select"
+                style={{
+                  padding: '1rem 1.5rem',
+                  fontSize: '1.1rem',
+                  borderRadius: '16px',
+                  border: '2px solid var(--border-color)',
+                  background: 'var(--bg-light)'
+                }}
               >
                 <option value="all">All Types</option>
-                <option value="individual">Individual</option>
-                <option value="group">Group</option>
+                <option value="individual">👤 Individual</option>
+                <option value="group">👥 Group</option>
               </select>
             </div>
-          </div>
 
-          <div className="text-sm text-gray-500">
-            {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
+            <div className="col-12 col-md-6 col-lg-3">
+              <label className="form-label fw-bold mb-3" style={{
+                color: 'var(--text-primary)',
+                fontSize: '1.1rem'
+              }}>
+                📈 Results
+              </label>
+              <div style={{
+                background: 'linear-gradient(135deg, #4ECDC4, #51CF66)',
+                padding: '1rem 1.5rem',
+                borderRadius: '16px',
+                textAlign: 'center',
+                border: '2px solid rgba(255,255,255,0.2)'
+              }}>
+                <div style={{
+                  fontSize: '1.8rem',
+                  fontWeight: '700',
+                  color: 'white',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                  marginBottom: '0.25rem'
+                }}>
+                  {filteredEvents.length}
+                </div>
+                <div style={{
+                  fontSize: '0.9rem',
+                  color: 'rgba(255,255,255,0.9)',
+                  fontWeight: '500'
+                }}>
+                  Events Found
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-6">
-        {Object.keys(groupedEvents).length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            No events match the selected filters
-          </div>
-        ) : (
-          Object.entries(groupedEvents).map(([eventName, eventInstances]) => (
-            <div key={eventName} className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">{eventName}</h2>
-                <p className="text-sm text-gray-500 mt-1">
-                  {eventInstances.length} categor{eventInstances.length !== 1 ? 'ies' : 'y'}
-                </p>
-              </div>
-              
-              <div className="divide-y divide-gray-200">
-                {eventInstances
-                  .sort((a, b) => {
-                    const statusOrder = { 'scheduled': 1, 'in-progress': 2, 'completed': 3 };
-                    return statusOrder[a.status] - statusOrder[b.status];
-                  })
-                  .map((event) => {
-                    const eventAwards = getEventAwards(event.id);
-                    const winner = event.results.find(r => r.position === 1);
-                    
-                    return (
-                      <div key={event.id} className="p-6">
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-                          <div className="flex-1">
-                            <div className="flex flex-wrap items-center gap-2 mb-3">
-                              <span className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-700 rounded-full">
-                                {getCategoryName(event.category)}
-                              </span>
-                              
-                              <span className="px-3 py-1 text-sm font-medium bg-gray-100 text-gray-700 rounded-full">
-                                {event.type === 'individual' ? 'Individual' : 'Group'}
-                              </span>
-                              
-                              <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusBadge(event.status)}`}>
-                                {event.status === 'in-progress' ? 'In Progress' : 
-                                 event.status === 'completed' ? 'Completed' : 'Scheduled'}
-                              </span>
-                            </div>
-
-                            <div className="space-y-2">
-                              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                                <span>1st: {event.scoring.firstPlace} pts</span>
-                                <span>2nd: {event.scoring.secondPlace} pts</span>
-                                <span>3rd: {event.scoring.thirdPlace} pts</span>
-                              </div>
-
-                              {event.status === 'completed' && winner && (
-                                <div className="text-sm">
-                                  <span className="text-gray-600">Winner: </span>
-                                  <span className="font-medium text-gray-900">
-                                    {event.type === 'individual' 
-                                      ? `${winner.playerName} (${winner.houseName})`
-                                      : winner.houseName
-                                    }
-                                  </span>
-                                </div>
-                              )}
-
-                              {eventAwards.length > 0 && (
-                                <div className="text-sm">
-                                  <span className="text-gray-600">Special Awards: </span>
-                                  <span className="text-gray-900">
-                                    {eventAwards.map(award => `${award.category}: ${award.winnerName}`).join(', ')}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="text-right mt-3 sm:mt-0 text-sm text-gray-500">
-                            {event.status === 'completed' && event.endTime ? (
-                              <div>Completed: {formatDate(event.endTime)}</div>
-                            ) : event.status === 'in-progress' && event.startTime ? (
-                              <div>Started: {formatDate(event.startTime)}</div>
-                            ) : event.startTime ? (
-                              <div>Scheduled: {formatDate(event.startTime)}</div>
-                            ) : (
-                              <div>Not scheduled</div>
-                            )}
-                          </div>
+      {/* Events List - Modern Card Design */}
+      {filteredEvents.length === 0 ? (
+        <div className="text-center py-5 fade-in-up" style={{
+          background: 'rgba(255,255,255,0.05)',
+          borderRadius: '24px',
+          border: '2px dashed rgba(255,255,255,0.2)',
+          margin: '2rem 0'
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>📅</div>
+          <h4 style={{ color: 'rgba(255,255,255,0.9)', marginBottom: '1rem', fontWeight: '600' }}>
+            No Events Found
+          </h4>
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: '2rem' }}>
+            No events match the selected filters. Try adjusting your search criteria.
+          </p>
+        </div>
+      ) : (
+        <div className="fade-in-up" style={{ animationDelay: '0.3s' }}>
+          {filteredEvents.map((event) => {
+            const getEventColor = (status: Event['status']) => {
+              switch (status) {
+                case 'scheduled': return '#4ECDC4';
+                case 'in-progress': return '#FFB84D';
+                case 'completed': return '#51CF66';
+                default: return '#6c757d';
+              }
+            };
+            
+            const getEventIcon = (status: Event['status']) => {
+              switch (status) {
+                case 'scheduled': return '📅';
+                case 'in-progress': return '🏃‍♂️';
+                case 'completed': return '🏆';
+                default: return '📌';
+              }
+            };
+            
+            const eventColor = getEventColor(event.status);
+            const eventIcon = getEventIcon(event.status);
+            
+            return (
+              <div key={event.id} className="mb-4">
+                <div 
+                  className="card"
+                  style={{
+                    background: `linear-gradient(135deg, ${eventColor}25, ${eventColor}15)`,
+                    backdropFilter: 'blur(20px)',
+                    border: `2px solid ${eventColor}40`,
+                    borderRadius: '24px',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    boxShadow: `0 8px 25px ${eventColor}20`
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.boxShadow = `0 12px 35px ${eventColor}30`;
+                    e.currentTarget.style.borderColor = `${eventColor}60`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = `0 8px 25px ${eventColor}20`;
+                    e.currentTarget.style.borderColor = `${eventColor}40`;
+                  }}
+                >
+                  <div className="card-body p-4">
+                    <div className="d-flex align-items-start justify-content-between flex-wrap gap-3">
+                      {/* Left Side - Event Info */}
+                      <div className="d-flex align-items-center gap-3 flex-grow-1 min-width-0">
+                        {/* Status Icon Circle */}
+                        <div 
+                          className="rounded-circle flex-shrink-0"
+                          style={{
+                            width: '50px',
+                            height: '50px',
+                            background: `linear-gradient(135deg, ${eventColor}, ${eventColor}dd)`,
+                            border: '3px solid rgba(255,255,255,0.3)',
+                            boxShadow: `0 4px 15px ${eventColor}40`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <span style={{ 
+                            fontSize: '1.5rem',
+                            filter: 'brightness(0) invert(1)'
+                          }}>
+                            {eventIcon}
+                          </span>
                         </div>
-
-                        {(event.status === 'completed' && event.results.length > 1) && (
-                          <button
-                            onClick={() => setSelectedEvent(selectedEvent?.id === event.id ? null : event)}
-                            className="mt-3 text-sm text-blue-600 hover:text-blue-700 transition-colors"
-                          >
-                            {selectedEvent?.id === event.id ? 'Hide Results' : 'Show Full Results'}
-                          </button>
-                        )}
-
-                        {selectedEvent?.id === event.id && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <h4 className="font-medium text-gray-900 mb-2">Full Results</h4>
-                            <div className="space-y-1">
-                              {selectedEvent.results
-                                .sort((a, b) => a.position - b.position)
-                                .map((result) => (
-                                  <div key={result.position} className="flex items-center justify-between text-sm">
-                                    <span>
-                                      {result.position === 1 ? '🥇' : result.position === 2 ? '🥈' : result.position === 3 ? '🥉' : `${result.position}.`}
-                                      {' '}
-                                      {selectedEvent.type === 'individual' 
-                                        ? `${result.playerName} (${result.houseName})`
-                                        : result.houseName
-                                      }
-                                    </span>
-                                    <span className="text-gray-600">
-                                      {result.position === 1 ? selectedEvent.scoring.firstPlace :
-                                       result.position === 2 ? selectedEvent.scoring.secondPlace :
-                                       result.position === 3 ? selectedEvent.scoring.thirdPlace : 0} pts
-                                    </span>
-                                  </div>
-                                ))}
+                        
+                        {/* Event Details */}
+                        <div className="flex-grow-1 min-width-0">
+                          <h5 className="card-title mb-2" style={{
+                            color: 'white',
+                            fontWeight: '700',
+                            fontSize: 'clamp(1.2rem, 5vw, 1.6rem)',
+                            textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                            lineHeight: '1.2',
+                            wordBreak: 'break-word'
+                          }}>
+                            {event.name}
+                          </h5>
+                          
+                          <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
+                            {/* Category Badge */}
+                            <span style={{
+                              fontSize: '0.75rem',
+                              color: 'white',
+                              fontWeight: '600',
+                              background: 'rgba(255,255,255,0.2)',
+                              padding: '0.3rem 0.7rem',
+                              borderRadius: '12px',
+                              backdropFilter: 'blur(10px)',
+                              border: '1px solid rgba(255,255,255,0.3)'
+                            }}>
+                              🏷️ {getCategoryName(event.categoryId)}
+                            </span>
+                            
+                            {/* Type Badge */}
+                            <span style={{
+                              fontSize: '0.75rem',
+                              color: 'white',
+                              fontWeight: '600',
+                              background: event.type === 'individual' ? 'rgba(78, 205, 196, 0.3)' : 'rgba(81, 207, 102, 0.3)',
+                              padding: '0.3rem 0.7rem',
+                              borderRadius: '12px',
+                              backdropFilter: 'blur(10px)',
+                              border: '1px solid rgba(255,255,255,0.3)'
+                            }}>
+                              {event.type === 'individual' ? '👤 Individual' : '👥 Group'}
+                            </span>
+                            
+                            {/* Status Badge */}
+                            <span style={{
+                              fontSize: '0.75rem',
+                              color: 'white',
+                              fontWeight: '700',
+                              background: `${eventColor}50`,
+                              padding: '0.3rem 0.7rem',
+                              borderRadius: '12px',
+                              backdropFilter: 'blur(10px)',
+                              border: `2px solid ${eventColor}70`,
+                              textTransform: 'capitalize'
+                            }}>
+                              {event.status === 'in-progress' ? 'In Progress' : event.status}
+                            </span>
+                          </div>
+                          
+                          {/* Timing & Additional Info */}
+                          <div className="d-flex flex-wrap gap-3 align-items-center mb-3">
+                            {/* Timing */}
+                            <div style={{
+                              background: 'rgba(0,0,0,0.2)',
+                              padding: '0.3rem 0.7rem',
+                              borderRadius: '12px',
+                              backdropFilter: 'blur(10px)'
+                            }}>
+                              <span style={{
+                                fontSize: '0.8rem',
+                                color: 'rgba(255,255,255,0.9)',
+                                fontWeight: '500'
+                              }}>
+                                {event.status === 'scheduled' && `📅 ${formatDate(event.startTime)}`}
+                                {event.status === 'in-progress' && `🚀 Started: ${formatDate(event.startTime)}`}
+                                {event.status === 'completed' && `🏁 Completed: ${formatDate(event.endTime)}`}
+                              </span>
+                            </div>
+                            
+                            {/* Scoring Preview */}
+                            <div style={{
+                              background: 'rgba(0,0,0,0.2)',
+                              padding: '0.3rem 0.7rem',
+                              borderRadius: '12px',
+                              backdropFilter: 'blur(10px)'
+                            }}>
+                              <span style={{
+                                fontSize: '0.8rem',
+                                color: 'rgba(255,255,255,0.9)',
+                                fontWeight: '500'
+                              }}>
+                                🏆 {Object.entries(event.scoring).length} placements
+                              </span>
                             </div>
                           </div>
-                        )}
+
+                          {/* Results for Completed Events */}
+                          {event.status === 'completed' && event.results && event.results.length > 0 && (
+                            <div className="mt-3">
+                              <div className="d-flex flex-wrap gap-2">
+                                {event.results
+                                  .sort((a, b) => a.placement - b.placement)
+                                  .slice(0, 3)
+                                  .map(result => (
+                                    <div 
+                                      key={result.participantId}
+                                      style={{
+                                        background: 'rgba(255,255,255,0.15)',
+                                        padding: '0.4rem 0.8rem',
+                                        borderRadius: '12px',
+                                        backdropFilter: 'blur(10px)',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        fontSize: '0.8rem',
+                                        color: 'white',
+                                        fontWeight: '600'
+                                      }}
+                                    >
+                                      {result.placement === 1 ? '🥇' : result.placement === 2 ? '🥈' : result.placement === 3 ? '🥉' : `${result.placement}th`}{' '}
+                                      {getParticipantName(result.participantId)} ({getScoreForPlacement(event, result.placement)}pts)
+                                    </div>
+                                  ))}
+                                {event.results.length > 3 && (
+                                  <div style={{
+                                    background: 'rgba(0,0,0,0.2)',
+                                    padding: '0.4rem 0.8rem',
+                                    borderRadius: '12px',
+                                    fontSize: '0.75rem',
+                                    color: 'rgba(255,255,255,0.8)',
+                                    fontWeight: '500'
+                                  }}>
+                                    +{event.results.length - 3} more
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    );
-                  })}
+                    </div>
+                  </div>
+
+                  {/* Bottom Color Accent */}
+                  <div 
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: `linear-gradient(90deg, ${eventColor}, ${eventColor}aa)`
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Bottom Spacing */}
+      <div style={{ height: '2rem' }}></div>
     </div>
   );
 };

@@ -1,101 +1,47 @@
-export type PlayerCategory = 'kids' | 'elders' | 'adult_men' | 'adult_women';
-
+// Basic types
 export type EventType = 'individual' | 'group';
-
 export type EventStatus = 'scheduled' | 'in-progress' | 'completed';
 
-export interface CategoryScores {
-  kids: number;
-  elders: number;
-  adult_men: number;
-  adult_women: number;
-}
-
+// New schema interfaces based on Firestore collections
 export interface House {
   id: string;
-  name: string;
-  totalScore: number;
-  categoryScores: CategoryScores;
+  name: string;          // Human-friendly name (e.g., "Red Falcons")
+  colorHex: string;      // Hex code for UI (e.g., "#E53935")
+}
+
+export interface Category {
+  id: string;
+  name: string;          // Machine-safe name (e.g., "adult-men")
+  label: string;         // User-facing label (e.g., "Adult - Men")
 }
 
 export interface Player {
   id: string;
-  name: string;
-  houseId: string;
-  category: PlayerCategory;
-  individualScore: number;
-  categoryScore: number;
-}
-
-export interface EventScoring {
-  firstPlace: number;
-  secondPlace: number;
-  thirdPlace: number;
-}
-
-export interface BaseEvent {
-  id: string;
-  name: string;
-  type: EventType;
-  categories: PlayerCategory[];
-  scoring: EventScoring;
-  createdAt: Date;
+  fullName: string;      // Player's full name (e.g., "John Smith")
+  categoryId: string;    // Reference to documentId in Category
+  houseId: string;       // Reference to documentId in House
 }
 
 export interface EventResult {
-  position: number;
-  playerId?: string;
-  houseId?: string;
-  playerName?: string;
-  houseName?: string;
-  category: PlayerCategory;
+  placement: number;     // Rank in event (1, 2, 3, ...)
+  participantId: string; // playerId for individual, houseId for group events
 }
 
-export interface EventWinner {
+export interface Event {
   id: string;
-  name: string;
+  name: string;          // Event name (e.g., "100m Sprint")
+  categoryId: string;    // Reference to categories collection
+  type: EventType;       // "individual" or "group"
+  status: EventStatus;   // "scheduled", "in-progress", "completed"
+  scoring: {             // Points for placements
+    [placement: number]: number; // e.g., {1: 5, 2: 3, 3: 1}
+  };
+  startTime?: Date;      // When the event starts
+  endTime?: Date;        // When the event ends
+  results?: EventResult[]; // Only present when status = "completed"
 }
 
-export interface EventInstance {
-  id: string;
-  baseEventId: string;
-  baseEventName: string;
-  eventName: string;
-  type: EventType;
-  category: PlayerCategory;
-  status: EventStatus;
-  scoring: EventScoring;
-  startTime?: Date;
-  endTime?: Date;
-  results: EventResult[];
-  winners?: EventWinner[];
-}
-
-export interface SpecialAward {
-  id: string;
-  eventInstanceId: string;
-  eventName: string;
-  category: string;
-  winnerName: string;
-  createdAt: Date;
-}
-
-export interface LeaderboardEntry {
-  position: number;
-  name: string;
-  score: number;
-  houseId?: string;
-  houseName?: string;
-  category?: PlayerCategory;
-}
-
+// Auth types
 export interface AuthState {
   isAuthenticated: boolean;
-}
-
-export interface DashboardData {
-  houses: House[];
-  players: Player[];
-  recentEvents: EventInstance[];
-  upcomingEvents: EventInstance[];
 }
