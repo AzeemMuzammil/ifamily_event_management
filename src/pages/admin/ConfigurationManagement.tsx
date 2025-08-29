@@ -69,9 +69,9 @@ const ConfigurationManagement = () => {
           if (!groupConfig) {
             promises.push(
               configRepository.setPlacementConfig(category.id, "group", {
-                1: 5,
-                2: 3,
-                3: 1,
+                1: 10,
+                2: 6,
+                3: 3,
               })
             );
           }
@@ -105,8 +105,15 @@ const ConfigurationManagement = () => {
         c.type === "placement-points"
     );
 
-    // Return existing config or default
-    return config?.placements || { 1: 5, 2: 3, 3: 1 };
+    // Return existing config or appropriate defaults
+    if (config?.placements) {
+      return config.placements;
+    }
+
+    // Return different defaults based on event type
+    return eventType === "individual"
+      ? { 1: 5, 2: 3, 3: 1 }
+      : { 1: 10, 2: 6, 3: 3 };
   };
 
   // Update placement config
@@ -186,12 +193,16 @@ const ConfigurationManagement = () => {
 
   // Reset to default configuration
   const resetToDefault = (categoryId: string, eventType: EventType) => {
-    if (
-      confirm(
-        "Reset this configuration to default values (1st: 5pts, 2nd: 3pts, 3rd: 1pt)?"
-      )
-    ) {
-      updatePlacementConfig(categoryId, eventType, { 1: 5, 2: 3, 3: 1 });
+    const defaultMessage =
+      eventType === "individual"
+        ? "Reset this configuration to default values (1st: 5pts, 2nd: 3pts, 3rd: 1pt)?"
+        : "Reset this configuration to default values (1st: 10pts, 2nd: 6pts, 3rd: 3pts)?";
+
+    const defaultValues =
+      eventType === "individual" ? { 1: 5, 2: 3, 3: 1 } : { 1: 10, 2: 6, 3: 3 };
+
+    if (confirm(defaultMessage)) {
+      updatePlacementConfig(categoryId, eventType, defaultValues);
     }
   };
 

@@ -109,11 +109,12 @@ export class ConfigRepository extends BaseRepository<Config> {
 
   // Create default placement config for a category (both individual and group)
   async createDefaultConfigsForCategory(categoryId: string): Promise<void> {
-    const defaultPlacements = { 1: 5, 2: 3, 3: 1 };
+    const individualDefaults = { 1: 5, 2: 3, 3: 1 };
+    const groupDefaults = { 1: 10, 2: 6, 3: 3 };
 
     await Promise.all([
-      this.setPlacementConfig(categoryId, "individual", defaultPlacements),
-      this.setPlacementConfig(categoryId, "group", defaultPlacements),
+      this.setPlacementConfig(categoryId, "individual", individualDefaults),
+      this.setPlacementConfig(categoryId, "group", groupDefaults),
     ]);
   }
 
