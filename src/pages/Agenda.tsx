@@ -352,12 +352,47 @@ const Agenda: React.FC = () => {
                   fontFamily: "Fredoka, sans-serif",
                   border: "1px solid var(--border-color)",
                   display: "inline-block",
+                  marginBottom: "var(--space-3)",
                 }}
               >
                 {filteredEvents.length === 0
                   ? "No events found"
                   : `${filteredEvents.length} of ${events.length} events shown`}{" "}
                 ✨
+              </div>
+              <div>
+                <button
+                  onClick={() => {
+                    setStatusFilter("all");
+                    setCategoryFilter("all");
+                    setTypeFilter("all");
+                  }}
+                  className="btn family-element"
+                  style={{
+                    background: "var(--bg-surface)",
+                    color: "var(--text-secondary)",
+                    border: "2px solid var(--border-color)",
+                    borderRadius: "var(--radius-lg)",
+                    padding: "var(--space-2) var(--space-4)",
+                    fontSize: "var(--font-size-sm)",
+                    fontWeight: "500",
+                    fontFamily: "Fredoka, sans-serif",
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background =
+                      "var(--accent-purple-light)";
+                    e.currentTarget.style.borderColor = "var(--accent-purple)";
+                    e.currentTarget.style.color = "var(--accent-purple)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "var(--bg-surface)";
+                    e.currentTarget.style.borderColor = "var(--border-color)";
+                    e.currentTarget.style.color = "var(--text-secondary)";
+                  }}
+                >
+                  🔄 Clear Filters
+                </button>
               </div>
             </div>
           )}

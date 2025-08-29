@@ -373,27 +373,27 @@ const PlayerManagement = () => {
             className="btn family-element"
             style={{
               background:
-                "linear-gradient(135deg, var(--secondary-color), var(--secondary-600))",
+                "linear-gradient(135deg, var(--primary-color), var(--accent-purple))",
               color: "white",
-              border: "2px solid rgba(16, 185, 129, 0.3)",
+              border: "2px solid rgba(139, 95, 255, 0.3)",
               borderRadius: "var(--radius-2xl)",
               padding: "var(--space-4) var(--space-6)",
               fontSize: "var(--font-size-lg)",
               fontWeight: "600",
               fontFamily: "Fredoka, sans-serif",
-              boxShadow: "0 8px 25px rgba(16, 185, 129, 0.4)",
+              boxShadow: "0 8px 25px rgba(139, 95, 255, 0.4)",
               transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
               marginTop: "var(--space-4)",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px) scale(1.05)";
               e.currentTarget.style.boxShadow =
-                "0 12px 35px rgba(16, 185, 129, 0.5)";
+                "0 12px 35px rgba(139, 95, 255, 0.5)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0) scale(1)";
               e.currentTarget.style.boxShadow =
-                "0 8px 25px rgba(16, 185, 129, 0.4)";
+                "0 8px 25px rgba(139, 95, 255, 0.4)";
             }}
           >
             <span style={{ marginRight: "var(--space-2)", fontSize: "1.2rem" }}>
@@ -479,12 +479,46 @@ const PlayerManagement = () => {
                   fontFamily: "Fredoka, sans-serif",
                   border: "1px solid var(--border-color)",
                   display: "inline-block",
+                  marginBottom: "var(--space-3)",
                 }}
               >
                 {sortedPlayers.length === 0
                   ? "No members found"
                   : `${sortedPlayers.length} of ${players.length} members shown`}{" "}
                 ✨
+              </div>
+              <div>
+                <button
+                  onClick={() => {
+                    setHouseFilter("all");
+                    setCategoryFilter("all");
+                  }}
+                  className="btn family-element"
+                  style={{
+                    background: "var(--bg-surface)",
+                    color: "var(--text-secondary)",
+                    border: "2px solid var(--border-color)",
+                    borderRadius: "var(--radius-lg)",
+                    padding: "var(--space-2) var(--space-4)",
+                    fontSize: "var(--font-size-sm)",
+                    fontWeight: "500",
+                    fontFamily: "Fredoka, sans-serif",
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background =
+                      "var(--accent-purple-light)";
+                    e.currentTarget.style.borderColor = "var(--accent-purple)";
+                    e.currentTarget.style.color = "var(--accent-purple)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "var(--bg-surface)";
+                    e.currentTarget.style.borderColor = "var(--border-color)";
+                    e.currentTarget.style.color = "var(--text-secondary)";
+                  }}
+                >
+                  🔄 Clear Filters
+                </button>
               </div>
             </div>
           )}
@@ -507,7 +541,7 @@ const PlayerManagement = () => {
             className="card-header"
             style={{
               background:
-                "linear-gradient(135deg, var(--secondary-color), var(--secondary-600))",
+                "linear-gradient(135deg, var(--primary-color), var(--accent-purple))",
               color: "white",
               border: "none",
               padding: "var(--space-5)",
@@ -681,14 +715,14 @@ const PlayerManagement = () => {
                   className="btn family-element"
                   style={{
                     background:
-                      "linear-gradient(135deg, var(--secondary-color), var(--secondary-600))",
+                      "linear-gradient(135deg, var(--primary-color), var(--accent-purple))",
                     color: "white",
-                    border: "2px solid rgba(16, 185, 129, 0.3)",
+                    border: "2px solid rgba(139, 95, 255, 0.3)",
                     borderRadius: "var(--radius-xl)",
                     padding: "var(--space-3) var(--space-5)",
                     fontWeight: "600",
                     fontFamily: "Fredoka, sans-serif",
-                    boxShadow: "0 8px 25px rgba(16, 185, 129, 0.4)",
+                    boxShadow: "0 8px 25px rgba(139, 95, 255, 0.4)",
                   }}
                 >
                   {editingPlayer
@@ -921,9 +955,16 @@ const PlayerManagement = () => {
           </h4>
           <p
             style={{
-              color: "var(--text-muted)",
+              color:
+                players.length === 0
+                  ? "var(--text-muted)"
+                  : "var(--text-secondary)",
               fontSize: "var(--font-size-lg)",
-              marginBottom: isAuthenticated ? "var(--space-4)" : "0",
+              fontWeight: players.length === 0 ? "normal" : "500",
+              marginBottom:
+                isAuthenticated && players.length === 0
+                  ? "var(--space-4)"
+                  : "0",
             }}
           >
             {players.length === 0
@@ -938,15 +979,15 @@ const PlayerManagement = () => {
               className="btn family-element"
               style={{
                 background:
-                  "linear-gradient(135deg, var(--secondary-color), var(--secondary-600))",
+                  "linear-gradient(135deg, var(--primary-color), var(--accent-purple))",
                 color: "white",
-                border: "2px solid rgba(16, 185, 129, 0.3)",
+                border: "2px solid rgba(139, 95, 255, 0.3)",
                 borderRadius: "var(--radius-2xl)",
                 padding: "var(--space-4) var(--space-6)",
                 fontSize: "var(--font-size-lg)",
                 fontWeight: "600",
                 fontFamily: "Fredoka, sans-serif",
-                boxShadow: "0 8px 25px rgba(16, 185, 129, 0.4)",
+                boxShadow: "0 8px 25px rgba(139, 95, 255, 0.4)",
               }}
             >
               👤 Add First Family Member
