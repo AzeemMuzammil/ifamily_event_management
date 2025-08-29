@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { House, Event, Player } from "../../types";
+import { House, Event, Player, Category } from "../../types";
 import {
   houseRepository,
   eventRepository,
   playerRepository,
+  categoryRepository,
 } from "../../database";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -12,38 +13,43 @@ const HouseManagement = () => {
   const [houses, setHouses] = useState<House[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [houseScores, setHouseScores] = useState<Record<string, number>>({});
+  const [categoryBreakdowns, setCategoryBreakdowns] = useState<
+    Record<string, Record<string, number>>
+  >({});
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingHouse, setEditingHouse] = useState<House | null>(null);
   const [formData, setFormData] = useState({
     name: "",
-    colorHex: "#E53935", // Default red color
+    colorHex: "#FF6B6B", // Default coral red color
   });
 
-  // Predefined color palette for house selection - Improved with better variations
+  // Predefined color palette for house selection - New distinctive colors
   const colorPalette = [
-    { name: "Fire Red", hex: "#E53935" },
-    { name: "Electric Blue", hex: "#1E88E5" },
-    { name: "Emerald Green", hex: "#00C853" },
-    { name: "Sunset Orange", hex: "#FF8F00" },
-    { name: "Royal Purple", hex: "#8E24AA" },
-    { name: "Hot Pink", hex: "#E91E63" },
-    { name: "Turquoise", hex: "#00ACC1" },
-    { name: "Golden Yellow", hex: "#FFC107" },
-    { name: "Deep Indigo", hex: "#3F51B5" },
-    { name: "Lime Green", hex: "#7CB342" },
-    { name: "Crimson", hex: "#C62828" },
-    { name: "Ocean Teal", hex: "#00838F" },
-    { name: "Magenta", hex: "#AD1457" },
-    { name: "Forest Green", hex: "#2E7D32" },
-    { name: "Amber", hex: "#F57F17" },
-    { name: "Navy Blue", hex: "#1A237E" },
-    { name: "Coral", hex: "#FF5722" },
-    { name: "Violet", hex: "#673AB7" },
-    { name: "Bronze", hex: "#8D6E63" },
-    { name: "Steel Blue", hex: "#455A64" },
+    { name: "Coral Red", hex: "#FF6B6B" },
+    { name: "Turquoise", hex: "#4ECDC4" },
+    { name: "Sunshine Yellow", hex: "#FFE66D" },
+    { name: "Mint Green", hex: "#95E1A3" },
+    { name: "Soft Green", hex: "#A8E6CF" },
+    { name: "Soft Pink", hex: "#FF8B94" },
+    { name: "Sky Blue", hex: "#A8D8EA" },
+    { name: "Lavender", hex: "#C7CEEA" },
+    { name: "Peach", hex: "#FFAAA5" },
+    { name: "Fresh Green", hex: "#6BCF7F" },
+    { name: "Ocean Blue", hex: "#5DADE2" },
+    { name: "Rose Pink", hex: "#F48FB1" },
+    { name: "Lime Green", hex: "#AED581" },
+    { name: "Golden Yellow", hex: "#FFD54F" },
+    { name: "Soft Purple", hex: "#9575CD" },
+    { name: "Bright Cyan", hex: "#4DD0E1" },
+    { name: "Warm Gray", hex: "#BCAAA4" },
+    { name: "Forest Green", hex: "#81C784" },
+    { name: "Coral Orange", hex: "#FF8A65" },
+    { name: "Blue Gray", hex: "#90A4AE" },
   ];
 
   useEffect(() => {
@@ -69,6 +75,12 @@ const HouseManagement = () => {
       }
     );
 
+    const unsubscribeCategories = categoryRepository.subscribeToAllCategories(
+      (categoriesData) => {
+        setCategories(categoriesData);
+      }
+    );
+
     setIsLoading(false);
 
     // Cleanup listeners on unmount
@@ -76,17 +88,23 @@ const HouseManagement = () => {
       unsubscribeHouses();
       unsubscribeEvents();
       unsubscribePlayers();
+      unsubscribeCategories();
     };
   }, []);
 
-  // Calculate house scores from completed events - matching Dashboard logic
+  // Calculate house scores from completed events - with category breakdown
   useEffect(() => {
     const calculateHouseScores = () => {
       const scores: Record<string, number> = {};
+      const breakdowns: Record<string, Record<string, number>> = {};
 
-      // Initialize all houses with 0 points
+      // Initialize all houses with 0 points and empty breakdowns
       houses.forEach((house) => {
         scores[house.id] = 0;
+        breakdowns[house.id] = {};
+        categories.forEach((category) => {
+          breakdowns[house.id][category.id] = 0;
+        });
       });
 
       // Calculate points from completed events
@@ -105,43 +123,80 @@ const HouseManagement = () => {
             const player = players.find((p) => p.id === result.participantId);
             if (player && scores[player.houseId] !== undefined) {
               scores[player.houseId] += score;
+              if (breakdowns[player.houseId][event.categoryId] !== undefined) {
+                breakdowns[player.houseId][event.categoryId] += score;
+              }
             }
           } else {
             // Group event - add score directly to house
             if (scores[result.participantId] !== undefined) {
               scores[result.participantId] += score;
+              if (
+                breakdowns[result.participantId][event.categoryId] !== undefined
+              ) {
+                breakdowns[result.participantId][event.categoryId] += score;
+              }
             }
           }
         });
       });
 
       setHouseScores(scores);
+      setCategoryBreakdowns(breakdowns);
     };
 
-    if (houses.length > 0 && events.length > 0) {
+    if (houses.length > 0 && categories.length > 0) {
       calculateHouseScores();
     }
-  }, [houses, events, players]);
+  }, [houses, events, players, categories]);
 
-  // Sort houses: by points (descending) if any house has points, otherwise alphabetically
-  const sortedHouses = [...houses].sort((a, b) => {
-    const aPoints = houseScores[a.id] || 0;
-    const bPoints = houseScores[b.id] || 0;
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find((c) => c.id === categoryId);
+    return category?.label || "Unknown Category";
+  };
 
-    // If any house has points, sort by points (descending)
-    const hasAnyPoints = Object.values(houseScores).some((score) => score > 0);
-    if (hasAnyPoints) {
-      if (aPoints !== bPoints) {
-        return bPoints - aPoints;
-      }
+  const getFilteredAndSortedHouses = () => {
+    if (selectedCategory === "all") {
+      // Sort by total points (descending) if any house has points, otherwise alphabetically
+      return [...houses].sort((a, b) => {
+        const aPoints = houseScores[a.id] || 0;
+        const bPoints = houseScores[b.id] || 0;
+
+        const hasAnyPoints = Object.values(houseScores).some(
+          (score) => score > 0
+        );
+        if (hasAnyPoints) {
+          if (aPoints !== bPoints) {
+            return bPoints - aPoints;
+          }
+        }
+
+        return a.name.localeCompare(b.name);
+      });
+    } else {
+      // Sort by category-specific points (descending), then alphabetically
+      return [...houses].sort((a, b) => {
+        const aCategoryPoints =
+          categoryBreakdowns[a.id]?.[selectedCategory] || 0;
+        const bCategoryPoints =
+          categoryBreakdowns[b.id]?.[selectedCategory] || 0;
+
+        // First sort by category points (descending)
+        if (aCategoryPoints !== bCategoryPoints) {
+          return bCategoryPoints - aCategoryPoints;
+        }
+
+        // If category points are equal, sort alphabetically
+        return a.name.localeCompare(b.name);
+      });
     }
+  };
 
-    // Fallback to alphabetical sorting
-    return a.name.localeCompare(b.name);
-  });
+  // Filter and sort houses
+  const filteredAndSortedHouses = getFilteredAndSortedHouses();
 
   const resetForm = () => {
-    setFormData({ name: "", colorHex: "#E53935" });
+    setFormData({ name: "", colorHex: "#FF6B6B" });
     setEditingHouse(null);
     setShowForm(false);
   };
@@ -603,11 +658,122 @@ const HouseManagement = () => {
         </div>
       )}
 
+      {/* Category Filter */}
+      {houses.length > 0 && (
+        <div
+          className="card mb-4"
+          style={{
+            background: "var(--bg-elevated)",
+            border: "2px solid var(--border-accent)",
+            borderRadius: "var(--radius-2xl)",
+            boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
+          }}
+        >
+          <div className="card-body" style={{ padding: "var(--space-4)" }}>
+            <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+              <div className="d-flex align-items-center gap-3">
+                <span style={{ fontSize: "1.5rem" }}>🏆</span>
+                <div>
+                  <h6
+                    className="mb-1 fw-bold"
+                    style={{
+                      color: "var(--text-primary)",
+                      fontFamily: "Fredoka, sans-serif",
+                    }}
+                  >
+                    House Rankings
+                  </h6>
+                  <p
+                    className="mb-0"
+                    style={{
+                      color: "var(--text-secondary)",
+                      fontSize: "var(--font-size-sm)",
+                    }}
+                  >
+                    {selectedCategory === "all"
+                      ? "Overall leaderboard across all categories"
+                      : `Leading houses in ${getCategoryName(
+                          selectedCategory
+                        )}`}
+                  </p>
+                </div>
+              </div>
+
+              <div className="d-flex align-items-center gap-2">
+                <label
+                  style={{
+                    fontSize: "var(--font-size-sm)",
+                    fontWeight: "600",
+                    color: "var(--text-primary)",
+                    fontFamily: "Fredoka, sans-serif",
+                    marginBottom: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  🏷️ Category:
+                </label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="form-select"
+                  style={{
+                    background: "var(--bg-surface)",
+                    border: "2px solid var(--primary-color)",
+                    borderRadius: "var(--radius-lg)",
+                    color: "var(--text-primary)",
+                    fontSize: "var(--font-size-sm)",
+                    fontFamily: "Fredoka, sans-serif",
+                    fontWeight: "500",
+                    padding: "var(--space-2) var(--space-3)",
+                    minWidth: "150px",
+                  }}
+                >
+                  <option value="all">🏆 All Categories</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Filter Results Info */}
+            {selectedCategory !== "all" && (
+              <div className="mt-3 text-center">
+                <div
+                  style={{
+                    background: "var(--bg-surface)",
+                    color: "var(--text-secondary)",
+                    padding: "var(--space-2) var(--space-4)",
+                    borderRadius: "var(--radius-full)",
+                    fontSize: "var(--font-size-sm)",
+                    fontWeight: "500",
+                    fontFamily: "Fredoka, sans-serif",
+                    border: "1px solid var(--border-color)",
+                    display: "inline-block",
+                  }}
+                >
+                  Showing {getCategoryName(selectedCategory)} category rankings
+                  ✨
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* House Teams Grid - Completely Rewritten */}
       <div className="d-flex flex-column" style={{ gap: "var(--space-4)" }}>
-        {sortedHouses.map((house) => {
+        {filteredAndSortedHouses.map((house) => {
           const houseScore = houseScores[house.id] || 0;
-          const hasPoints = houseScore > 0;
+          const categoryBreakdown = categoryBreakdowns[house.id] || {};
+
+          // Get category-specific score if filtering by category
+          const categoryScore =
+            selectedCategory !== "all"
+              ? categoryBreakdown[selectedCategory] || 0
+              : houseScore;
 
           return (
             <div
@@ -668,9 +834,11 @@ const HouseManagement = () => {
                         fontWeight: "500",
                       }}
                     >
-                      {hasPoints
-                        ? `${houseScore} points earned`
-                        : "Ready to compete! 🚀"}
+                      {selectedCategory === "all" ? houseScore : categoryScore}{" "}
+                      {selectedCategory === "all"
+                        ? "total points"
+                        : "category points"}{" "}
+                      earned
                     </div>
                   </div>
                 </div>
@@ -680,13 +848,25 @@ const HouseManagement = () => {
                   <div
                     className="h2 mb-1 fw-bold"
                     style={{
-                      color: "var(--text-primary)",
+                      color: house.colorHex,
                       fontFamily: "Fredoka, sans-serif",
-                      fontSize: "clamp(2rem, 4vw, 1.8rem)",
+                      fontSize: "clamp(1.8rem, 4vw, 2.2rem)",
+                      textShadow: `0 0 10px ${house.colorHex}40`,
                     }}
                   >
-                    {houseScore} pts
+                    {selectedCategory === "all" ? houseScore : categoryScore}
                   </div>
+                  <small
+                    style={{
+                      color: "var(--text-secondary)",
+                      fontWeight: "600",
+                      fontSize: "var(--font-size-sm)",
+                    }}
+                  >
+                    {selectedCategory === "all"
+                      ? "points"
+                      : getCategoryName(selectedCategory)}
+                  </small>
 
                   {/* Admin Actions */}
                   {isAuthenticated && (
@@ -769,7 +949,7 @@ const HouseManagement = () => {
       </div>
 
       {/* Empty State */}
-      {sortedHouses.length === 0 && (
+      {filteredAndSortedHouses.length === 0 && (
         <div
           className="text-center"
           style={{
