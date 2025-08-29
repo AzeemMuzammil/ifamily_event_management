@@ -11,14 +11,14 @@ const Navigation = ({ currentView, onViewChange }: NavigationProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const publicViews = [
-    { id: 'dashboard', name: '🏠 Family Hub', icon: '🏠', description: 'See scores & achievements' },
-    { id: 'agenda', name: '🎆 Adventure List', icon: '🎆', description: 'Discover upcoming fun' }
+    { id: 'dashboard', name: '🏠 Family Dashboard', icon: '🏠', description: 'View scores and achievements' },
+    { id: 'agenda', name: '🎯 Event Calendar', icon: '🎯', description: 'Browse all family activities' }
   ];
 
   const adminViews = [
     { id: 'admin-players', name: '👨‍👩‍👧‍👦 Family Members', icon: '👨‍👩‍👧‍👦', description: 'Manage family roster' },
     { id: 'admin-houses', name: '🏘️ Team Houses', icon: '🏘️', description: 'Organize family teams' },
-    { id: 'admin-events', name: '✨ Event Magic', icon: '✨', description: 'Create amazing activities' }
+    { id: 'admin-events', name: '🎪 Event Studio', icon: '🎪', description: 'Create amazing activities' }
   ];
 
   const views = isAuthenticated ? [...publicViews, ...adminViews] : publicViews;

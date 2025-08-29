@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Event, Category, Player, House } from '../types';
 import { eventRepository, categoryRepository, playerRepository, houseRepository } from '../database';
+import ExpandableRow from '../components/ExpandableRow';
 
 const Agenda: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -13,6 +14,9 @@ const Agenda: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'all' | Event['status']>('all');
   const [categoryFilter, setCategoryFilter] = useState<'all' | string>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | Event['type']>('all');
+  
+  // Expanded state for expandable rows
+  const [expandedEvents, setExpandedEvents] = useState<{[key: string]: boolean}>({});
 
   // Load data
   useEffect(() => {
@@ -86,6 +90,13 @@ const Agenda: React.FC = () => {
     });
   };
 
+  const toggleEventExpanded = (eventId: string) => {
+    setExpandedEvents(prev => ({
+      ...prev,
+      [eventId]: !prev[eventId]
+    }));
+  };
+
   // Filter events
   const filteredEvents = events.filter(event => {
     if (statusFilter !== 'all' && event.status !== statusFilter) return false;
@@ -96,18 +107,40 @@ const Agenda: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{height: '400px'}}>
+      <div className="d-flex justify-content-center align-items-center" style={{ 
+        minHeight: '400px',
+        background: 'var(--bg-elevated)',
+        borderRadius: 'var(--radius-2xl)',
+        border: '2px solid var(--border-accent)',
+        margin: 'var(--space-4)',
+        boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)'
+      }}>
         <div className="text-center">
-          <div className="spinner-custom mx-auto mb-3 pulse-animation"></div>
           <div style={{
-            background: 'linear-gradient(45deg, #FF6B6B, #4ECDC4)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            fontSize: '1.2rem',
-            fontWeight: '600'
+            fontSize: '3rem',
+            marginBottom: 'var(--space-4)',
+            animation: 'twinkle 2s infinite'
           }}>
-            📅 Loading agenda...
+            ⏳
           </div>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid var(--border-color)',
+            borderTop: '4px solid var(--primary-color)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            marginBottom: 'var(--space-4)',
+            margin: '0 auto var(--space-4)'
+          }}></div>
+          <p style={{
+            fontFamily: 'Fredoka, sans-serif',
+            color: 'var(--text-secondary)',
+            fontSize: 'var(--font-size-lg)',
+            fontWeight: '500'
+          }}>
+            Loading magical events... ✨
+          </p>
         </div>
       </div>
     );
@@ -115,105 +148,111 @@ const Agenda: React.FC = () => {
 
   if (error) {
     return (
-      <div className="text-center py-5">
-        <div className="alert alert-danger glow-effect" style={{maxWidth: '400px'}} role="alert">
-          <h5 className="alert-heading">🚨 Something went wrong</h5>
-          {error}
+      <div className="text-center" style={{ padding: 'var(--space-5)' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, var(--danger-color), #DC2626)',
+          color: 'white',
+          borderRadius: 'var(--radius-2xl)',
+          padding: 'var(--space-5)',
+          maxWidth: '400px',
+          margin: '0 auto',
+          border: '2px solid rgba(248, 113, 113, 0.3)',
+          boxShadow: '0 8px 25px rgba(248, 113, 113, 0.3)'
+        }}>
+          <div style={{ fontSize: '3rem', marginBottom: 'var(--space-3)' }}>⚠️</div>
+          <h4 style={{ 
+            fontFamily: 'Fredoka, sans-serif', 
+            marginBottom: 'var(--space-2)',
+            fontWeight: '600'
+          }}>
+            Oops! Something went wrong
+          </h4>
+          <p style={{ 
+            fontSize: 'var(--font-size-base)',
+            margin: '0',
+            opacity: '0.9'
+          }}>
+            {error}
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid mobile-spacing-md">
+    <div className="container-fluid mobile-spacing-md" style={{
+      minHeight: '100vh',
+      background: 'var(--bg-primary)',
+      paddingTop: 'var(--space-4)',
+      paddingBottom: 'var(--space-4)'
+    }}>
       {/* Header */}
-      <div className="text-center mb-5 fade-in-up">
-        <h1 className="mobile-title" style={{
-          background: 'linear-gradient(45deg, #FF6B6B, #4ECDC4)',
+      <div className="text-center mb-5">
+        <h1 className="mobile-title fw-bold mb-3" style={{
+          fontFamily: 'Fredoka, sans-serif',
+          background: 'linear-gradient(135deg, var(--accent-yellow), var(--primary-light), var(--accent-pink))',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          fontWeight: '700',
-          marginBottom: '0.5rem'
+          backgroundClip: 'text',
+          fontSize: 'clamp(2rem, 6vw, 3.5rem)',
+          textShadow: '0 0 20px rgba(139, 95, 255, 0.3)'
         }}>
-          📅 Events Agenda
+          🎯 Event Calendar ✨
         </h1>
         <p className="mobile-subtitle" style={{
-          color: 'rgba(255, 255, 255, 0.9)',
-          fontWeight: '500',
-          textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-          marginBottom: '2rem'
+          color: 'var(--text-secondary)',
+          fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+          fontFamily: 'Fredoka, sans-serif',
+          fontWeight: '400'
         }}>
-          Track all scheduled, ongoing, and completed events
+          Browse all your family's scheduled activities and adventures! 📅
         </p>
       </div>
 
-      {/* Filters */}
-      <div className="card mb-5 fade-in-up" style={{
-        border: 'none',
-        borderRadius: '24px',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-        overflow: 'hidden'
+      {/* Compact Filters */}
+      <div className="card mb-4" style={{
+        background: 'var(--bg-elevated)',
+        border: '2px solid var(--border-accent)',
+        borderRadius: 'var(--radius-2xl)',
+        boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)'
       }}>
-        <div className="card-header" style={{
-          background: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
-          color: 'white',
-          border: 'none',
-          padding: '2rem'
-        }}>
-          <div className="text-center">
-            <h5 className="card-title mb-1" style={{ fontSize: '1.5rem', fontWeight: '700' }}>
-              🔍 Filter Events
-            </h5>
-            <p className="mb-0" style={{ opacity: '0.9' }}>
-              Customize your view by status, category, and type
-            </p>
-          </div>
-        </div>
-        <div className="card-body mobile-spacing-xl">
-          <div className="row g-4">
-            <div className="col-12 col-md-6 col-lg-3">
-              <label className="form-label fw-bold mb-3" style={{
-                color: 'var(--text-primary)',
-                fontSize: '1.1rem'
-              }}>
-                📊 Status
-              </label>
+        <div className="card-body" style={{ padding: 'var(--space-4)' }}>
+          <div className="row g-3 align-items-end">
+            <div className="col-6 col-md-4">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as 'all' | Event['status'])}
-                className="form-select"
+                className="form-select family-element"
                 style={{
-                  padding: '1rem 1.5rem',
-                  fontSize: '1.1rem',
-                  borderRadius: '16px',
+                  background: 'var(--bg-surface)',
                   border: '2px solid var(--border-color)',
-                  background: 'var(--bg-light)'
+                  borderRadius: 'var(--radius-lg)',
+                  color: 'var(--text-primary)',
+                  fontSize: 'var(--font-size-sm)',
+                  fontFamily: 'Fredoka, sans-serif',
+                  padding: 'var(--space-3)'
                 }}
               >
                 <option value="all">All Status</option>
                 <option value="scheduled">📅 Scheduled</option>
-                <option value="in-progress">⏳ In Progress</option>
+                <option value="in-progress">🔥 In Progress</option>
                 <option value="completed">✅ Completed</option>
               </select>
             </div>
 
-            <div className="col-12 col-md-6 col-lg-3">
-              <label className="form-label fw-bold mb-3" style={{
-                color: 'var(--text-primary)',
-                fontSize: '1.1rem'
-              }}>
-                🏷️ Category
-              </label>
+            <div className="col-6 col-md-4">
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="form-select"
+                className="form-select family-element"
                 style={{
-                  padding: '1rem 1.5rem',
-                  fontSize: '1.1rem',
-                  borderRadius: '16px',
+                  background: 'var(--bg-surface)',
                   border: '2px solid var(--border-color)',
-                  background: 'var(--bg-light)'
+                  borderRadius: 'var(--radius-lg)',
+                  color: 'var(--text-primary)',
+                  fontSize: 'var(--font-size-sm)',
+                  fontFamily: 'Fredoka, sans-serif',
+                  padding: 'var(--space-3)'
                 }}
               >
                 <option value="all">All Categories</option>
@@ -225,23 +264,19 @@ const Agenda: React.FC = () => {
               </select>
             </div>
 
-            <div className="col-12 col-md-6 col-lg-3">
-              <label className="form-label fw-bold mb-3" style={{
-                color: 'var(--text-primary)',
-                fontSize: '1.1rem'
-              }}>
-                👥 Type
-              </label>
+            <div className="col-6 col-md-4">
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value as 'all' | Event['type'])}
-                className="form-select"
+                className="form-select family-element"
                 style={{
-                  padding: '1rem 1.5rem',
-                  fontSize: '1.1rem',
-                  borderRadius: '16px',
+                  background: 'var(--bg-surface)',
                   border: '2px solid var(--border-color)',
-                  background: 'var(--bg-light)'
+                  borderRadius: 'var(--radius-lg)',
+                  color: 'var(--text-primary)',
+                  fontSize: 'var(--font-size-sm)',
+                  fontFamily: 'Fredoka, sans-serif',
+                  padding: 'var(--space-3)'
                 }}
               >
                 <option value="all">All Types</option>
@@ -250,286 +285,329 @@ const Agenda: React.FC = () => {
               </select>
             </div>
 
-            <div className="col-12 col-md-6 col-lg-3">
-              <label className="form-label fw-bold mb-3" style={{
-                color: 'var(--text-primary)',
-                fontSize: '1.1rem'
-              }}>
-                📈 Results
-              </label>
-              <div style={{
-                background: 'linear-gradient(135deg, #4ECDC4, #51CF66)',
-                padding: '1rem 1.5rem',
-                borderRadius: '16px',
-                textAlign: 'center',
-                border: '2px solid rgba(255,255,255,0.2)'
-              }}>
-                <div style={{
-                  fontSize: '1.8rem',
-                  fontWeight: '700',
-                  color: 'white',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                  marginBottom: '0.25rem'
-                }}>
-                  {filteredEvents.length}
-                </div>
-                <div style={{
-                  fontSize: '0.9rem',
-                  color: 'rgba(255,255,255,0.9)',
-                  fontWeight: '500'
-                }}>
-                  Events Found
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Events List - Modern Card Design */}
+      {/* Events List */}
       {filteredEvents.length === 0 ? (
-        <div className="text-center py-5 fade-in-up" style={{
-          background: 'rgba(255,255,255,0.05)',
-          borderRadius: '24px',
-          border: '2px dashed rgba(255,255,255,0.2)',
-          margin: '2rem 0'
+        <div className="text-center py-5" style={{
+          background: 'var(--bg-elevated)',
+          borderRadius: 'var(--radius-2xl)',
+          border: '2px solid var(--border-accent)',
+          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)'
         }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>📅</div>
-          <h4 style={{ color: 'rgba(255,255,255,0.9)', marginBottom: '1rem', fontWeight: '600' }}>
+          <div style={{ fontSize: '4rem', marginBottom: 'var(--space-4)' }}>🎯</div>
+          <h4 style={{ 
+            color: 'var(--text-secondary)', 
+            marginBottom: 'var(--space-3)', 
+            fontFamily: 'Fredoka, sans-serif' 
+          }}>
             No Events Found
           </h4>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', marginBottom: '2rem' }}>
-            No events match the selected filters. Try adjusting your search criteria.
+          <p style={{ 
+            color: 'var(--text-secondary)', 
+            fontSize: 'var(--font-size-lg)',
+            fontWeight: '500'
+          }}>
+            No events match your current filters. Try adjusting your selection! ✨
           </p>
         </div>
       ) : (
-        <div className="fade-in-up" style={{ animationDelay: '0.3s' }}>
+        <div className="d-flex flex-column" style={{ gap: 'var(--space-4)' }}>
           {filteredEvents.map((event) => {
+            const isExpanded = expandedEvents[event.id] || false;
             const getEventColor = (status: Event['status']) => {
               switch (status) {
-                case 'scheduled': return '#4ECDC4';
-                case 'in-progress': return '#FFB84D';
-                case 'completed': return '#51CF66';
-                default: return '#6c757d';
+                case 'scheduled': return 'var(--info-color)';
+                case 'in-progress': return 'var(--warning-color)';
+                case 'completed': return 'var(--success-color)';
+                default: return 'var(--text-muted)';
               }
             };
             
             const getEventIcon = (status: Event['status']) => {
               switch (status) {
                 case 'scheduled': return '📅';
-                case 'in-progress': return '🏃‍♂️';
+                case 'in-progress': return '🔥';
                 case 'completed': return '🏆';
                 default: return '📌';
               }
             };
             
-            const eventColor = getEventColor(event.status);
+            const accentColor = getEventColor(event.status);
             const eventIcon = getEventIcon(event.status);
+            const isLive = event.status === 'in-progress';
             
             return (
-              <div key={event.id} className="mb-4">
-                <div 
-                  className="card"
-                  style={{
-                    background: `linear-gradient(135deg, ${eventColor}25, ${eventColor}15)`,
-                    backdropFilter: 'blur(20px)',
-                    border: `2px solid ${eventColor}40`,
-                    borderRadius: '24px',
-                    transition: 'all 0.3s ease',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    boxShadow: `0 8px 25px ${eventColor}20`
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.boxShadow = `0 12px 35px ${eventColor}30`;
-                    e.currentTarget.style.borderColor = `${eventColor}60`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = `0 8px 25px ${eventColor}20`;
-                    e.currentTarget.style.borderColor = `${eventColor}40`;
-                  }}
-                >
-                  <div className="card-body p-4">
-                    <div className="d-flex align-items-start justify-content-between flex-wrap gap-3">
-                      {/* Left Side - Event Info */}
-                      <div className="d-flex align-items-center gap-3 flex-grow-1 min-width-0">
-                        {/* Status Icon Circle */}
-                        <div 
-                          className="rounded-circle flex-shrink-0"
-                          style={{
-                            width: '50px',
-                            height: '50px',
-                            background: `linear-gradient(135deg, ${eventColor}, ${eventColor}dd)`,
-                            border: '3px solid rgba(255,255,255,0.3)',
-                            boxShadow: `0 4px 15px ${eventColor}40`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          <span style={{ 
-                            fontSize: '1.5rem',
-                            filter: 'brightness(0) invert(1)'
-                          }}>
-                            {eventIcon}
-                          </span>
-                        </div>
-                        
-                        {/* Event Details */}
-                        <div className="flex-grow-1 min-width-0">
-                          <h5 className="card-title mb-2" style={{
-                            color: 'white',
-                            fontWeight: '700',
-                            fontSize: 'clamp(1.2rem, 5vw, 1.6rem)',
-                            textShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                            lineHeight: '1.2',
-                            wordBreak: 'break-word'
+              <ExpandableRow
+                key={event.id}
+                accentColor={accentColor}
+                isExpanded={isExpanded}
+                onToggle={() => toggleEventExpanded(event.id)}
+                previewContent={
+                  <div className="d-flex align-items-center justify-content-between w-100">
+                    <div className="d-flex align-items-center mobile-gap-md flex-grow-1">
+                      <div style={{
+                        background: accentColor,
+                        borderRadius: 'var(--radius-full)',
+                        width: '48px',
+                        height: '48px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.5rem',
+                        boxShadow: `0 4px 15px ${accentColor}44`,
+                        animation: isLive ? 'pulse 2s infinite' : 'none'
+                      }}>
+                        {eventIcon}
+                      </div>
+                      <div className="min-width-0 flex-grow-1">
+                        <div className="d-flex align-items-center mobile-gap-sm mb-1">
+                          <h6 className="mb-0 fw-bold" style={{ 
+                            color: 'var(--text-primary)',
+                            fontFamily: 'Fredoka, sans-serif'
                           }}>
                             {event.name}
-                          </h5>
-                          
-                          <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
-                            {/* Category Badge */}
-                            <span style={{
-                              fontSize: '0.75rem',
+                          </h6>
+                          {isLive && (
+                            <span className="badge" style={{
+                              background: 'var(--warning-color)',
                               color: 'white',
-                              fontWeight: '600',
-                              background: 'rgba(255,255,255,0.2)',
-                              padding: '0.3rem 0.7rem',
-                              borderRadius: '12px',
-                              backdropFilter: 'blur(10px)',
-                              border: '1px solid rgba(255,255,255,0.3)'
+                              fontSize: 'var(--font-size-xs)',
+                              animation: 'pulse 2s infinite'
                             }}>
-                              🏷️ {getCategoryName(event.categoryId)}
+                              LIVE
                             </span>
-                            
-                            {/* Type Badge */}
-                            <span style={{
-                              fontSize: '0.75rem',
-                              color: 'white',
-                              fontWeight: '600',
-                              background: event.type === 'individual' ? 'rgba(78, 205, 196, 0.3)' : 'rgba(81, 207, 102, 0.3)',
-                              padding: '0.3rem 0.7rem',
-                              borderRadius: '12px',
-                              backdropFilter: 'blur(10px)',
-                              border: '1px solid rgba(255,255,255,0.3)'
-                            }}>
-                              {event.type === 'individual' ? '👤 Individual' : '👥 Group'}
-                            </span>
-                            
-                            {/* Status Badge */}
-                            <span style={{
-                              fontSize: '0.75rem',
-                              color: 'white',
-                              fontWeight: '700',
-                              background: `${eventColor}50`,
-                              padding: '0.3rem 0.7rem',
-                              borderRadius: '12px',
-                              backdropFilter: 'blur(10px)',
-                              border: `2px solid ${eventColor}70`,
-                              textTransform: 'capitalize'
-                            }}>
-                              {event.status === 'in-progress' ? 'In Progress' : event.status}
-                            </span>
-                          </div>
-                          
-                          {/* Timing & Additional Info */}
-                          <div className="d-flex flex-wrap gap-3 align-items-center mb-3">
-                            {/* Timing */}
-                            <div style={{
-                              background: 'rgba(0,0,0,0.2)',
-                              padding: '0.3rem 0.7rem',
-                              borderRadius: '12px',
-                              backdropFilter: 'blur(10px)'
-                            }}>
-                              <span style={{
-                                fontSize: '0.8rem',
-                                color: 'rgba(255,255,255,0.9)',
-                                fontWeight: '500'
-                              }}>
-                                {event.status === 'scheduled' && `📅 ${formatDate(event.startTime)}`}
-                                {event.status === 'in-progress' && `🚀 Started: ${formatDate(event.startTime)}`}
-                                {event.status === 'completed' && `🏁 Completed: ${formatDate(event.endTime)}`}
-                              </span>
-                            </div>
-                            
-                            {/* Scoring Preview */}
-                            <div style={{
-                              background: 'rgba(0,0,0,0.2)',
-                              padding: '0.3rem 0.7rem',
-                              borderRadius: '12px',
-                              backdropFilter: 'blur(10px)'
-                            }}>
-                              <span style={{
-                                fontSize: '0.8rem',
-                                color: 'rgba(255,255,255,0.9)',
-                                fontWeight: '500'
-                              }}>
-                                🏆 {Object.entries(event.scoring).length} placements
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Results for Completed Events */}
-                          {event.status === 'completed' && event.results && event.results.length > 0 && (
-                            <div className="mt-3">
-                              <div className="d-flex flex-wrap gap-2">
-                                {event.results
-                                  .sort((a, b) => a.placement - b.placement)
-                                  .slice(0, 3)
-                                  .map(result => (
-                                    <div 
-                                      key={result.participantId}
-                                      style={{
-                                        background: 'rgba(255,255,255,0.15)',
-                                        padding: '0.4rem 0.8rem',
-                                        borderRadius: '12px',
-                                        backdropFilter: 'blur(10px)',
-                                        border: '1px solid rgba(255,255,255,0.2)',
-                                        fontSize: '0.8rem',
-                                        color: 'white',
-                                        fontWeight: '600'
-                                      }}
-                                    >
-                                      {result.placement === 1 ? '🥇' : result.placement === 2 ? '🥈' : result.placement === 3 ? '🥉' : `${result.placement}th`}{' '}
-                                      {getParticipantName(result.participantId)} ({getScoreForPlacement(event, result.placement)}pts)
-                                    </div>
-                                  ))}
-                                {event.results.length > 3 && (
-                                  <div style={{
-                                    background: 'rgba(0,0,0,0.2)',
-                                    padding: '0.4rem 0.8rem',
-                                    borderRadius: '12px',
-                                    fontSize: '0.75rem',
-                                    color: 'rgba(255,255,255,0.8)',
-                                    fontWeight: '500'
-                                  }}>
-                                    +{event.results.length - 3} more
-                                  </div>
-                                )}
-                              </div>
-                            </div>
                           )}
+                        </div>
+                        <div className="d-flex align-items-center mobile-gap-sm flex-wrap">
+                          <span className="badge" style={{ 
+                            background: 'var(--secondary-color)', 
+                            color: 'white',
+                            fontSize: 'var(--font-size-xs)'
+                          }}>
+                            {getCategoryName(event.categoryId)}
+                          </span>
+                          <span className="badge" style={{
+                            background: 'var(--accent-purple)',
+                            color: 'white',
+                            fontSize: 'var(--font-size-xs)'
+                          }}>
+                            {event.type === 'individual' ? '👤 Individual' : '👥 Group Event'}
+                          </span>
+                          {isExpanded && (
+                            <span className="badge" style={{
+                              background: accentColor,
+                              color: 'white',
+                              fontSize: 'var(--font-size-xs)',
+                              animation: isLive ? 'pulse 2s infinite' : 'none'
+                            }}>
+                              {event.status === 'scheduled' ? '📅 Scheduled' : 
+                               event.status === 'in-progress' ? '🔥 In Progress' : '🏆 Completed'}
+                            </span>
+                          )}
+                          <small style={{ 
+                            color: 'var(--text-secondary)',
+                            fontWeight: '500'
+                          }}>
+                            {event.status === 'scheduled' && formatDate(event.startTime)}
+                            {event.status === 'in-progress' && `Started: ${formatDate(event.startTime)}`}
+                            {event.status === 'completed' && formatDate(event.endTime)}
+                          </small>
                         </div>
                       </div>
                     </div>
                   </div>
+                }
+              >
+                {/* Detailed information when expanded */}
+                <div className="d-flex flex-column" style={{ gap: 'var(--space-3)' }}>
+                  <div className="p-3 rounded" style={{
+                    background: 'var(--bg-elevated)',
+                    border: `1px solid ${accentColor}`
+                  }}>
+                    <div className="mb-3">
+                      <div className="d-flex align-items-center mb-2">
+                        <span style={{ fontSize: '1.5rem', marginRight: 'var(--space-2)' }}>🏆</span>
+                        <span className="fw-bold" style={{ 
+                          color: 'var(--text-primary)',
+                          fontFamily: 'Fredoka, sans-serif'
+                        }}>
+                          Point System ({Object.entries(event.scoring).length} placements)
+                        </span>
+                      </div>
+                      <div className="d-flex flex-wrap" style={{ gap: 'var(--space-2)' }}>
+                        {Object.entries(event.scoring)
+                          .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                          .map(([placement, points]) => (
+                            <span key={placement} className="badge" style={{
+                              background: placement === '1' ? 'var(--warning-color)' : 
+                                         placement === '2' ? '#C0C0C0' : 
+                                         placement === '3' ? '#CD7F32' : 'var(--info-color)',
+                              color: 'white',
+                              fontSize: 'var(--font-size-sm)',
+                              padding: 'var(--space-2) var(--space-4)',
+                              fontFamily: 'Fredoka, sans-serif',
+                              fontWeight: '700',
+                              textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                            }}>
+                              {placement === '1' ? '🥇' : placement === '2' ? '🥈' : placement === '3' ? '🥉' : `#${placement}`} → {points}pts
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <small style={{ 
+                        color: 'var(--text-secondary)',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: '500'
+                      }}>
+                        Higher placements earn more points for your house! 🏠✨
+                      </small>
+                    </div>
+                  </div>
 
-                  {/* Bottom Color Accent */}
-                  <div 
-                    style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      height: '4px',
-                      background: `linear-gradient(90deg, ${eventColor}, ${eventColor}aa)`
-                    }}
-                  />
+                  {/* Results for Completed Events */}
+                  {event.status === 'completed' && event.results && event.results.length > 0 && (
+                    <div className="p-3 rounded" style={{
+                      background: 'var(--bg-elevated)',
+                      border: `1px solid ${accentColor}`
+                    }}>
+                      <div className="d-flex align-items-center justify-content-between mb-3">
+                        <div className="d-flex align-items-center">
+                          <span style={{ fontSize: '1.5rem', marginRight: 'var(--space-2)' }}>🏅</span>
+                          <span className="fw-bold" style={{ 
+                            color: 'var(--text-primary)',
+                            fontFamily: 'Fredoka, sans-serif'
+                          }}>
+                            Final Results
+                          </span>
+                        </div>
+                        <div className="text-end">
+                          <div className="fw-bold" style={{ 
+                            color: accentColor,
+                            fontFamily: 'Fredoka, sans-serif',
+                            fontSize: 'var(--font-size-lg)',
+                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                          }}>
+                            {event.results.length} participants
+                          </div>
+                          <small style={{ 
+                            color: 'var(--text-secondary)',
+                            fontWeight: '500'
+                          }}>
+                            completed
+                          </small>
+                        </div>
+                      </div>
+                      
+                      <div className="d-flex flex-column" style={{ gap: 'var(--space-2)' }}>
+                        {event.results
+                          .sort((a, b) => a.placement - b.placement)
+                          .map(result => {
+                            const participant = participants[result.participantId];
+                            const participantName = getParticipantName(result.participantId);
+                            const isHouse = participant && !('fullName' in participant);
+                            const points = getScoreForPlacement(event, result.placement);
+                            
+                            return (
+                              <div key={result.participantId} style={{
+                                background: result.placement <= 3 ? 
+                                  `linear-gradient(135deg, ${result.placement === 1 ? 'var(--warning-color)' : 
+                                    result.placement === 2 ? '#C0C0C0' : '#CD7F32'}, ${result.placement === 1 ? '#FFD700' : 
+                                    result.placement === 2 ? '#E8E8E8' : '#DEB887'})` : 
+                                  'var(--bg-surface)',
+                                color: result.placement <= 3 ? 'white' : 'var(--text-primary)',
+                                borderRadius: 'var(--radius-lg)',
+                                padding: 'var(--space-3)',
+                                border: result.placement <= 3 ? 'none' : '1px solid var(--border-color)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                boxShadow: result.placement <= 3 ? '0 4px 15px rgba(0, 0, 0, 0.2)' : 'none'
+                              }}>
+                                <div className="d-flex align-items-center" style={{ gap: 'var(--space-3)' }}>
+                                  <div style={{
+                                    fontSize: '1.5rem',
+                                    minWidth: '40px',
+                                    textAlign: 'center'
+                                  }}>
+                                    {result.placement === 1 ? '🥇' : result.placement === 2 ? '🥈' : result.placement === 3 ? '🥉' : `#${result.placement}`}
+                                  </div>
+                                  <div>
+                                    <div className="fw-bold" style={{ 
+                                      fontFamily: 'Fredoka, sans-serif',
+                                      fontSize: 'var(--font-size-lg)',
+                                      textShadow: result.placement <= 3 ? '0 1px 2px rgba(0, 0, 0, 0.3)' : 'none'
+                                    }}>
+                                      {participantName}
+                                    </div>
+                                    {!isHouse && participant && 'houseId' in participant && (
+                                      <small style={{ 
+                                        opacity: '0.9',
+                                        fontSize: 'var(--font-size-sm)',
+                                        fontWeight: '500'
+                                      }}>
+                                        🏠 {getParticipantName(participant.houseId)}
+                                      </small>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="text-end">
+                                  <div className="fw-bold" style={{
+                                    fontFamily: 'Fredoka, sans-serif',
+                                    fontSize: 'var(--font-size-xl)',
+                                    textShadow: result.placement <= 3 ? '0 1px 2px rgba(0, 0, 0, 0.3)' : 'none'
+                                  }}>
+                                    {points}
+                                  </div>
+                                  <small style={{ 
+                                    opacity: '0.9',
+                                    fontWeight: '500'
+                                  }}>
+                                    points
+                                  </small>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                      
+                      {/* Winner Celebration */}
+                      {event.results.length > 0 && (
+                        <div className="text-center mt-3 p-2 rounded" style={{
+                          background: 'linear-gradient(135deg, var(--warning-color), #FFD700)',
+                          color: 'white',
+                          animation: 'glow-pulse 3s infinite'
+                        }}>
+                          <div style={{ fontSize: '1.2rem', marginBottom: 'var(--space-1)' }}>🎉</div>
+                          <small style={{ 
+                            fontWeight: '700', 
+                            fontFamily: 'Fredoka, sans-serif',
+                            fontSize: 'var(--font-size-sm)',
+                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                          }}>
+                            Congratulations {getParticipantName(event.results.find(r => r.placement === 1)?.participantId || '')}! 
+                          </small>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="text-center">
+                    <small style={{ 
+                      color: 'var(--text-secondary)',
+                      fontSize: 'var(--font-size-sm)',
+                      fontWeight: '500'
+                    }}>
+                      {event.status === 'scheduled' && `📅 Starts ${formatDate(event.startTime)}`}
+                      {event.status === 'in-progress' && `🔥 Started ${formatDate(event.startTime)}`}
+                      {event.status === 'completed' && `✅ Completed ${formatDate(event.endTime)}`}
+                    </small>
+                  </div>
                 </div>
-              </div>
+              </ExpandableRow>
             );
           })}
         </div>

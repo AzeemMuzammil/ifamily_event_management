@@ -58,7 +58,7 @@ const ExpandableRow: React.FC<ExpandableRowProps> = ({
   };
 
   const expandedStyle: React.CSSProperties = {
-    maxHeight: isExpanded ? '500px' : '0',
+    maxHeight: isExpanded ? '1000px' : '0',
     overflow: 'hidden',
     transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     background: 'var(--bg-elevated)'
