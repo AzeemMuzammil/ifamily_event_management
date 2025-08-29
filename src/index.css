@@ -1,76 +1,91 @@
 /* Bootstrap CSS */
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* Google Fonts - Playful and Family-Friendly */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* CSS Variables for World-Class Family-Friendly Theme */
+/* CSS Variables for Dark Family-Friendly Theme */
 :root {
-  /* Primary Colors - Soft and Welcoming */
-  --primary-color: #6366F1;
-  --primary-light: #E0E7FF;
-  --primary-dark: #4F46E5;
-  --primary-50: #F0F2FF;
-  --primary-100: #E0E7FF;
-  --primary-200: #C7D2FE;
-  --primary-500: #6366F1;
-  --primary-600: #5B21B6;
+  /* Dark Theme Color Palette - Warm and Welcoming */
+  --primary-color: #8B5FFF;
+  --primary-light: #A78BFA;
+  --primary-dark: #7C3AED;
+  --primary-50: #2D1B69;
+  --primary-100: #3730A3;
+  --primary-200: #4338CA;
+  --primary-500: #8B5FFF;
+  --primary-600: #7C3AED;
   
-  /* Secondary Colors - Gentle and Approachable */
-  --secondary-color: #059669;
-  --secondary-light: #D1FAE5;
-  --secondary-dark: #047857;
-  --secondary-50: #ECFDF5;
-  --secondary-100: #D1FAE5;
-  --secondary-200: #A7F3D0;
-  --secondary-500: #059669;
-  --secondary-600: #047857;
+  /* Secondary Colors - Nature-Inspired and Calming */
+  --secondary-color: #10B981;
+  --secondary-light: #34D399;
+  --secondary-dark: #059669;
+  --secondary-50: #064E3B;
+  --secondary-100: #065F46;
+  --secondary-200: #047857;
+  --secondary-500: #10B981;
+  --secondary-600: #059669;
   
-  /* Accent Colors - Playful yet Sophisticated */
-  --accent-orange: #F59E0B;
-  --accent-orange-light: #FEF3C7;
-  --accent-pink: #EC4899;
-  --accent-pink-light: #FCE7F3;
-  --accent-blue: #3B82F6;
-  --accent-blue-light: #DBEAFE;
-  --accent-purple: #8B5CF6;
-  --accent-purple-light: #EDE9FE;
+  /* Accent Colors - Vibrant yet Eye-Friendly */
+  --accent-orange: #FB923C;
+  --accent-orange-light: #FDBA74;
+  --accent-pink: #F472B6;
+  --accent-pink-light: #F9A8D4;
+  --accent-blue: #60A5FA;
+  --accent-blue-light: #93C5FD;
+  --accent-purple: #A78BFA;
+  --accent-purple-light: #C4B5FD;
+  --accent-yellow: #FCD34D;
+  --accent-yellow-light: #FDE68A;
   
-  /* Category Colors - Age-Appropriate and Inclusive */
-  --kids-color: #EC4899;
-  --kids-bg: #FCE7F3;
+  /* Category Colors - Inclusive and Age-Appropriate */
+  --kids-color: #F472B6;
+  --kids-bg: #831843;
   --kids-light: #F9A8D4;
-  --elders-color: #059669;
-  --elders-bg: #D1FAE5;
+  --elders-color: #34D399;
+  --elders-bg: #064E3B;
   --elders-light: #6EE7B7;
-  --men-color: #3B82F6;
-  --men-bg: #DBEAFE;
+  --men-color: #60A5FA;
+  --men-bg: #1E3A8A;
   --men-light: #93C5FD;
-  --women-color: #A855F7;
-  --women-bg: #F3E8FF;
-  --women-light: #C084FC;
+  --women-color: #A78BFA;
+  --women-bg: #581C87;
+  --women-light: #C4B5FD;
   
-  /* Status Colors - Clear and Accessible */
+  /* Status Colors - High Contrast for Accessibility */
   --success-color: #10B981;
-  --success-light: #D1FAE5;
-  --warning-color: #F59E0B;
-  --warning-light: #FEF3C7;
-  --danger-color: #EF4444;
-  --danger-light: #FEE2E2;
-  --info-color: #3B82F6;
-  --info-light: #DBEAFE;
+  --success-light: #34D399;
+  --success-bg: #064E3B;
+  --warning-color: #FB923C;
+  --warning-light: #FDBA74;
+  --warning-bg: #9A3412;
+  --danger-color: #F87171;
+  --danger-light: #FCA5A5;
+  --danger-bg: #991B1B;
+  --info-color: #60A5FA;
+  --info-light: #93C5FD;
+  --info-bg: #1E3A8A;
   
-  /* Neutral Colors - Modern and Clean */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F9FAFB;
-  --bg-tertiary: #F3F4F6;
-  --bg-accent: #FAFBFF;
-  --text-primary: #111827;
-  --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
-  --text-light: #D1D5DB;
-  --border-color: #E5E7EB;
-  --border-light: #F3F4F6;
+  /* Dark Theme Background Colors */
+  --bg-primary: #0F0F23;
+  --bg-secondary: #1A1A2E;
+  --bg-tertiary: #16213E;
+  --bg-accent: #0E3460;
+  --bg-surface: #252545;
+  --bg-elevated: #2A2A4A;
+  --bg-glass: rgba(42, 42, 74, 0.8);
+  
+  /* Dark Theme Text Colors */
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-light: #64748B;
+  --text-accent: #E2E8F0;
+  
+  /* Dark Theme Border Colors */
+  --border-color: #334155;
+  --border-light: #475569;
+  --border-accent: #64748B;
   
   /* Enhanced Shadows - Softer and More Natural */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -128,20 +143,21 @@
 }
 
 body {
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-family: 'Fredoka', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, var(--primary-50) 0%, var(--secondary-50) 50%, var(--accent-blue-light) 100%);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
   background-attachment: fixed;
   color: var(--text-primary);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-relaxed);
   font-size: var(--font-size-base);
   letter-spacing: -0.011em;
   font-feature-settings: 'kern' 1;
   text-rendering: optimizeLegibility;
+  min-height: 100vh;
 }
 
-/* Enhanced Background Pattern - More Subtle and Modern */
+/* Dark Theme Background Pattern - Magical and Playful */
 body::before {
   content: '';
   position: fixed;
@@ -150,11 +166,36 @@ body::before {
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(5, 150, 105, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(139, 95, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(244, 114, 182, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 60% 70%, rgba(96, 165, 250, 0.06) 0%, transparent 50%);
   pointer-events: none;
   z-index: -1;
+}
+
+/* Starry Night Effect */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.1), transparent),
+    radial-gradient(1px 1px at 40px 70px, rgba(139, 95, 255, 0.2), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(16, 185, 129, 0.15), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(244, 114, 182, 0.1), transparent);
+  background-size: 150px 100px;
+  animation: twinkle 8s infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
 }
 
 /* Enhanced Button System - World-Class Touch-Friendly Design */
@@ -1323,4 +1364,58 @@ body::before {
   50% {
     transform: scale(1.02);
   }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+/* Expandable Card Animations */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.01);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Expandable Card Styles */
+.expandable-card {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.expandable-card:hover {
+  transform: translateY(-2px) scale(1.005);
+}
+
+.expandable-card-header:hover .expand-chevron {
+  color: var(--primary-color) !important;
+  transform: scale(1.1) rotate(0deg);
+}
+
+.expandable-card-header:active {
+  transform: scale(0.98);
+}
+
+.preview-content {
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.expandable-card:hover .preview-content {
+  opacity: 1;
+  transform: scale(1.05);
 }
