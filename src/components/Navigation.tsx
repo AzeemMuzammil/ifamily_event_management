@@ -29,15 +29,15 @@ const Navigation = ({ currentView, onViewChange }: NavigationProps) => {
       icon: "🏘️",
       description: "View family house teams",
     },
-  ];
-
-  const adminViews = [
     {
       id: "admin-players",
       name: "👨‍👩‍👧‍👦 Family Members",
       icon: "👨‍👩‍👧‍👦",
-      description: "Manage family roster",
+      description: "View family roster",
     },
+  ];
+
+  const adminViews = [
     {
       id: "admin-events",
       name: "🎪 Event Studio",

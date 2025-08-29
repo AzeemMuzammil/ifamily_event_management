@@ -306,7 +306,7 @@ const Agenda: React.FC = () => {
                 <option value="all">All Categories</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.label}
+                    🏷️ {category.label}
                   </option>
                 ))}
               </select>
@@ -335,6 +335,32 @@ const Agenda: React.FC = () => {
               </select>
             </div>
           </div>
+
+          {/* Filter Results Count */}
+          {(statusFilter !== "all" ||
+            categoryFilter !== "all" ||
+            typeFilter !== "all") && (
+            <div className="text-center mt-3">
+              <div
+                style={{
+                  background: "var(--bg-surface)",
+                  color: "var(--text-secondary)",
+                  padding: "var(--space-2) var(--space-4)",
+                  borderRadius: "var(--radius-full)",
+                  fontSize: "var(--font-size-sm)",
+                  fontWeight: "500",
+                  fontFamily: "Fredoka, sans-serif",
+                  border: "1px solid var(--border-color)",
+                  display: "inline-block",
+                }}
+              >
+                {filteredEvents.length === 0
+                  ? "No events found"
+                  : `${filteredEvents.length} of ${events.length} events shown`}{" "}
+                ✨
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
