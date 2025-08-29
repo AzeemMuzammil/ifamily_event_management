@@ -282,13 +282,47 @@ const Dashboard: React.FC = () => {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "400px" }}
+        style={{
+          minHeight: "400px",
+          background: "var(--bg-elevated)",
+          borderRadius: "var(--radius-2xl)",
+          border: "2px solid var(--border-accent)",
+          margin: "var(--space-4)",
+          boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
+        }}
       >
         <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading dashboard...</span>
+          <div
+            style={{
+              fontSize: "3rem",
+              marginBottom: "var(--space-4)",
+              animation: "twinkle 2s infinite",
+            }}
+          >
+            🏠
           </div>
-          <p className="text-muted mt-3">Loading dashboard data...</p>
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              border: "4px solid var(--border-color)",
+              borderTop: "4px solid var(--primary-color)",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              marginBottom: "var(--space-4)",
+              margin: "0 auto var(--space-4)",
+            }}
+          ></div>
+          <p
+            style={{
+              fontFamily: "Fredoka, sans-serif",
+              color: "var(--text-secondary)",
+              fontSize: "var(--font-size-lg)",
+              fontWeight: "500",
+            }}
+          >
+            Loading family dashboard... ✨
+          </p>
         </div>
       </div>
     );
@@ -296,12 +330,40 @@ const Dashboard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="text-center py-5">
+      <div className="text-center" style={{ padding: "var(--space-5)" }}>
         <div
-          className="alert alert-danger mx-auto"
-          style={{ maxWidth: "400px" }}
+          style={{
+            background: "linear-gradient(135deg, var(--danger-color), #DC2626)",
+            color: "white",
+            borderRadius: "var(--radius-2xl)",
+            padding: "var(--space-5)",
+            maxWidth: "400px",
+            margin: "0 auto",
+            border: "2px solid rgba(248, 113, 113, 0.3)",
+            boxShadow: "0 8px 25px rgba(248, 113, 113, 0.3)",
+          }}
         >
-          {error}
+          <div style={{ fontSize: "3rem", marginBottom: "var(--space-3)" }}>
+            ⚠️
+          </div>
+          <h4
+            style={{
+              fontFamily: "Fredoka, sans-serif",
+              marginBottom: "var(--space-2)",
+              fontWeight: "600",
+            }}
+          >
+            Oops! Something went wrong
+          </h4>
+          <p
+            style={{
+              fontSize: "var(--font-size-base)",
+              margin: "0",
+              opacity: "0.9",
+            }}
+          >
+            {error}
+          </p>
         </div>
       </div>
     );
