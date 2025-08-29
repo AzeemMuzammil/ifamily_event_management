@@ -112,14 +112,34 @@ const Agenda: React.FC = () => {
     }));
   };
 
-  // Filter events
-  const filteredEvents = events.filter((event) => {
-    if (statusFilter !== "all" && event.status !== statusFilter) return false;
-    if (categoryFilter !== "all" && event.categoryId !== categoryFilter)
-      return false;
-    if (typeFilter !== "all" && event.type !== typeFilter) return false;
-    return true;
-  });
+  // Filter and sort events
+  const filteredAndSortedEvents = events
+    .filter((event) => {
+      if (statusFilter !== "all" && event.status !== statusFilter) return false;
+      if (categoryFilter !== "all" && event.categoryId !== categoryFilter)
+        return false;
+      if (typeFilter !== "all" && event.type !== typeFilter) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      // Priority order: in-progress -> scheduled -> completed
+      const statusOrder = {
+        "in-progress": 1,
+        scheduled: 2,
+        completed: 3,
+      };
+
+      const aOrder = statusOrder[a.status];
+      const bOrder = statusOrder[b.status];
+
+      // First sort by status priority
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+
+      // Then sort alphabetically within the same status
+      return a.name.localeCompare(b.name);
+    });
 
   if (isLoading) {
     return (
@@ -355,9 +375,9 @@ const Agenda: React.FC = () => {
                   marginBottom: "var(--space-3)",
                 }}
               >
-                {filteredEvents.length === 0
+                {filteredAndSortedEvents.length === 0
                   ? "No events found"
-                  : `${filteredEvents.length} of ${events.length} events shown`}{" "}
+                  : `${filteredAndSortedEvents.length} of ${events.length} events shown`}{" "}
                 ✨
               </div>
               <div>
@@ -400,7 +420,7 @@ const Agenda: React.FC = () => {
       </div>
 
       {/* Events List */}
-      {filteredEvents.length === 0 ? (
+      {filteredAndSortedEvents.length === 0 ? (
         <div
           className="text-center py-5"
           style={{
@@ -435,7 +455,7 @@ const Agenda: React.FC = () => {
         </div>
       ) : (
         <div className="d-flex flex-column" style={{ gap: "var(--space-4)" }}>
-          {filteredEvents.map((event) => {
+          {filteredAndSortedEvents.map((event) => {
             const isExpanded = expandedEvents[event.id] || false;
             const getEventColor = (status: Event["status"]) => {
               switch (status) {
