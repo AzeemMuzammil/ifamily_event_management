@@ -23,6 +23,12 @@ const Navigation = ({ currentView, onViewChange }: NavigationProps) => {
       icon: "🎯",
       description: "Browse all family activities",
     },
+    {
+      id: "admin-houses",
+      name: "🏘️ Team Houses",
+      icon: "🏘️",
+      description: "View family house teams",
+    },
   ];
 
   const adminViews = [
@@ -31,12 +37,6 @@ const Navigation = ({ currentView, onViewChange }: NavigationProps) => {
       name: "👨‍👩‍👧‍👦 Family Members",
       icon: "👨‍👩‍👧‍👦",
       description: "Manage family roster",
-    },
-    {
-      id: "admin-houses",
-      name: "🏘️ Team Houses",
-      icon: "🏘️",
-      description: "Organize family teams",
     },
     {
       id: "admin-events",
