@@ -22,28 +22,28 @@ const HouseManagement = () => {
     colorHex: "#E53935", // Default red color
   });
 
-  // Predefined color palette for house selection
+  // Predefined color palette for house selection - Improved with better variations
   const colorPalette = [
-    { name: "Coral Red", hex: "#FF6B6B" },
-    { name: "Ocean Blue", hex: "#4ECDC4" },
-    { name: "Sunset Orange", hex: "#FFB84D" },
-    { name: "Forest Green", hex: "#51CF66" },
-    { name: "Royal Purple", hex: "#9775FA" },
-    { name: "Rose Pink", hex: "#FF8CC8" },
-    { name: "Golden Yellow", hex: "#FFD43B" },
-    { name: "Sky Blue", hex: "#74C0FC" },
-    { name: "Mint Green", hex: "#8CE99A" },
-    { name: "Lavender", hex: "#D0BFFF" },
-    { name: "Salmon", hex: "#FFA8A8" },
-    { name: "Teal", hex: "#3BC9DB" },
-    { name: "Lime", hex: "#94D82D" },
-    { name: "Peach", hex: "#FFDEEB" },
-    { name: "Indigo", hex: "#5C7CFA" },
-    { name: "Emerald", hex: "#12B886" },
-    { name: "Ruby", hex: "#E03131" },
-    { name: "Amber", hex: "#FAB005" },
-    { name: "Violet", hex: "#7950F2" },
-    { name: "Cyan", hex: "#15AABF" },
+    { name: "Fire Red", hex: "#E53935" },
+    { name: "Electric Blue", hex: "#1E88E5" },
+    { name: "Emerald Green", hex: "#00C853" },
+    { name: "Sunset Orange", hex: "#FF8F00" },
+    { name: "Royal Purple", hex: "#8E24AA" },
+    { name: "Hot Pink", hex: "#E91E63" },
+    { name: "Turquoise", hex: "#00ACC1" },
+    { name: "Golden Yellow", hex: "#FFC107" },
+    { name: "Deep Indigo", hex: "#3F51B5" },
+    { name: "Lime Green", hex: "#7CB342" },
+    { name: "Crimson", hex: "#C62828" },
+    { name: "Ocean Teal", hex: "#00838F" },
+    { name: "Magenta", hex: "#AD1457" },
+    { name: "Forest Green", hex: "#2E7D32" },
+    { name: "Amber", hex: "#F57F17" },
+    { name: "Navy Blue", hex: "#1A237E" },
+    { name: "Coral", hex: "#FF5722" },
+    { name: "Violet", hex: "#673AB7" },
+    { name: "Bronze", hex: "#8D6E63" },
+    { name: "Steel Blue", hex: "#455A64" },
   ];
 
   useEffect(() => {
