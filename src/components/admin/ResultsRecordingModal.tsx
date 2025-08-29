@@ -71,19 +71,6 @@ const ResultsRecordingModal: React.FC<ResultsRecordingModalProps> = ({
     loadParticipants();
   }, [event]);
 
-  const getParticipantName = (participantId: string) => {
-    const participant = participants.find((p) => p.id === participantId);
-    if (!participant) return "Not assigned";
-
-    if ("fullName" in participant) {
-      return participant.fullName; // Player
-    } else {
-      return participant.name; // House
-    }
-  };
-
-  // Removed expandedPlacements state - not needed for ResultsRecordingModal
-
   const getScoreForPlacement = (placement: number) => {
     return event.scoring[placement] || 0;
   };
@@ -293,10 +280,7 @@ const ResultsRecordingModal: React.FC<ResultsRecordingModalProps> = ({
                   textShadow: "0 0 20px rgba(139, 95, 255, 0.3)",
                 }}
               >
-                {event.status === "completed"
-                  ? "🏆 Event Results"
-                  : "📝 Record Results"}{" "}
-                ✨
+                📝 Record Results ✨
               </h1>
               <p
                 className="mobile-subtitle"
@@ -326,113 +310,107 @@ const ResultsRecordingModal: React.FC<ResultsRecordingModalProps> = ({
                     fontFamily: "Fredoka, sans-serif",
                   }}
                 >
-                  {event.status === "completed" ? "🔙 Close" : "❌ Cancel"}
+                  ❌ Cancel
                 </button>
 
-                {event.status !== "completed" && (
-                  <button
-                    onClick={handleSave}
-                    className="btn family-element"
-                    disabled={
-                      isSaving ||
-                      results.filter((r) => r.participantId !== "").length === 0
-                    }
-                    style={{
-                      background:
-                        "linear-gradient(135deg, var(--primary-color), var(--accent-purple))",
-                      color: "white",
-                      border: "2px solid rgba(139, 95, 255, 0.3)",
-                      borderRadius: "var(--radius-xl)",
-                      padding: "var(--space-3) var(--space-5)",
-                      fontSize: "var(--font-size-base)",
-                      fontWeight: "600",
-                      fontFamily: "Fredoka, sans-serif",
-                      boxShadow: "0 8px 25px rgba(139, 95, 255, 0.4)",
-                      opacity:
-                        isSaving ||
-                        results.filter((r) => r.participantId !== "").length ===
-                          0
-                          ? "0.5"
-                          : "1",
-                      cursor:
-                        isSaving ||
-                        results.filter((r) => r.participantId !== "").length ===
-                          0
-                          ? "not-allowed"
-                          : "pointer",
-                    }}
-                  >
-                    {isSaving ? (
-                      <>
-                        <div
-                          style={{
-                            width: "16px",
-                            height: "16px",
-                            border: "2px solid rgba(255,255,255,0.3)",
-                            borderTop: "2px solid white",
-                            borderRadius: "50%",
-                            animation: "spin 1s linear infinite",
-                            display: "inline-block",
-                            marginRight: "var(--space-2)",
-                          }}
-                        ></div>
-                        Saving...
-                      </>
-                    ) : (
-                      <>🏁 Complete Event</>
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Instructions */}
-            {event.status !== "completed" && (
-              <div
-                className="card mb-5"
-                style={{
-                  background: "var(--bg-elevated)",
-                  border: "2px solid var(--border-accent)",
-                  borderRadius: "var(--radius-2xl)",
-                  boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  className="card-header"
+                <button
+                  onClick={handleSave}
+                  className="btn family-element"
+                  disabled={
+                    isSaving ||
+                    results.filter((r) => r.participantId !== "").length === 0
+                  }
                   style={{
                     background:
                       "linear-gradient(135deg, var(--primary-color), var(--accent-purple))",
                     color: "white",
-                    border: "none",
-                    padding: "var(--space-5)",
+                    border: "2px solid rgba(139, 95, 255, 0.3)",
+                    borderRadius: "var(--radius-xl)",
+                    padding: "var(--space-3) var(--space-5)",
+                    fontSize: "var(--font-size-base)",
+                    fontWeight: "600",
+                    fontFamily: "Fredoka, sans-serif",
+                    boxShadow: "0 8px 25px rgba(139, 95, 255, 0.4)",
+                    opacity:
+                      isSaving ||
+                      results.filter((r) => r.participantId !== "").length === 0
+                        ? "0.5"
+                        : "1",
+                    cursor:
+                      isSaving ||
+                      results.filter((r) => r.participantId !== "").length === 0
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                 >
-                  <div className="text-center">
-                    <h5
-                      className="card-title mb-1"
-                      style={{
-                        fontSize: "1.5rem",
-                        fontWeight: "700",
-                        fontFamily: "Fredoka, sans-serif",
-                      }}
-                    >
-                      💡 Instructions
-                    </h5>
-                    <p
-                      className="mb-0"
-                      style={{
-                        opacity: "0.9",
-                        fontFamily: "Fredoka, sans-serif",
-                      }}
-                    >
-                      Select participants for each placement. Leave unassigned
-                      if no one earned that position.
-                    </p>
-                  </div>
+                  {isSaving ? (
+                    <>
+                      <div
+                        style={{
+                          width: "16px",
+                          height: "16px",
+                          border: "2px solid rgba(255,255,255,0.3)",
+                          borderTop: "2px solid white",
+                          borderRadius: "50%",
+                          animation: "spin 1s linear infinite",
+                          display: "inline-block",
+                          marginRight: "var(--space-2)",
+                        }}
+                      ></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>🏁 Complete Event</>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Instructions */}
+            <div
+              className="card mb-5"
+              style={{
+                background: "var(--bg-elevated)",
+                border: "2px solid var(--border-accent)",
+                borderRadius: "var(--radius-2xl)",
+                boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                className="card-header"
+                style={{
+                  background:
+                    "linear-gradient(135deg, var(--primary-color), var(--accent-purple))",
+                  color: "white",
+                  border: "none",
+                  padding: "var(--space-5)",
+                }}
+              >
+                <div className="text-center">
+                  <h5
+                    className="card-title mb-1"
+                    style={{
+                      fontSize: "1.5rem",
+                      fontWeight: "700",
+                      fontFamily: "Fredoka, sans-serif",
+                    }}
+                  >
+                    💡 Instructions
+                  </h5>
+                  <p
+                    className="mb-0"
+                    style={{
+                      opacity: "0.9",
+                      fontFamily: "Fredoka, sans-serif",
+                    }}
+                  >
+                    Select participants for each placement. Leave unassigned if
+                    no one earned that position.
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
 
             {/* No Participants Warning */}
             {participants.length === 0 ? (
@@ -612,64 +590,47 @@ const ResultsRecordingModal: React.FC<ResultsRecordingModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Right Side - Participant Selection/Display */}
+                        {/* Right Side - Participant Selection */}
                         <div className="text-end" style={{ minWidth: "200px" }}>
-                          {event.status === "completed" ? (
-                            <div
-                              className="h5 mb-0 fw-bold"
-                              style={{
-                                color: "var(--text-primary)",
-                                fontFamily: "Fredoka, sans-serif",
-                                fontSize: "clamp(1.2rem, 4vw, 1.4rem)",
-                                background: "var(--bg-surface)",
-                                padding: "var(--space-3) var(--space-4)",
-                                borderRadius: "var(--radius-lg)",
-                                border: "2px solid var(--border-color)",
-                              }}
-                            >
-                              {getParticipantName(result.participantId)}
-                            </div>
-                          ) : (
-                            <select
-                              value={result.participantId}
-                              onChange={(e) =>
-                                updateParticipantForPlacement(
-                                  result.placement,
-                                  e.target.value
-                                )
-                              }
-                              className="form-select"
-                              style={{
-                                padding: "var(--space-4)",
-                                fontSize: "var(--font-size-lg)",
-                                borderRadius: "var(--radius-xl)",
-                                border: "2px solid var(--border-color)",
-                                background: "var(--bg-surface)",
-                                color: "var(--text-primary)",
-                                fontFamily: "Fredoka, sans-serif",
-                                minWidth: "200px",
-                              }}
-                            >
-                              <option value="">Select participant</option>
-                              {participants.map((participant) => {
-                                const isSelected =
-                                  isParticipantSelected(participant.id) &&
-                                  participant.id !== result.participantId;
-                                return (
-                                  <option
-                                    key={participant.id}
-                                    value={participant.id}
-                                    disabled={isSelected}
-                                  >
-                                    {"fullName" in participant
-                                      ? participant.fullName
-                                      : participant.name}
-                                    {isSelected ? " (already assigned)" : ""}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          )}
+                          <select
+                            value={result.participantId}
+                            onChange={(e) =>
+                              updateParticipantForPlacement(
+                                result.placement,
+                                e.target.value
+                              )
+                            }
+                            className="form-select"
+                            style={{
+                              padding: "var(--space-4)",
+                              fontSize: "var(--font-size-lg)",
+                              borderRadius: "var(--radius-xl)",
+                              border: "2px solid var(--border-color)",
+                              background: "var(--bg-surface)",
+                              color: "var(--text-primary)",
+                              fontFamily: "Fredoka, sans-serif",
+                              minWidth: "200px",
+                            }}
+                          >
+                            <option value="">Select participant</option>
+                            {participants.map((participant) => {
+                              const isSelected =
+                                isParticipantSelected(participant.id) &&
+                                participant.id !== result.participantId;
+                              return (
+                                <option
+                                  key={participant.id}
+                                  value={participant.id}
+                                  disabled={isSelected}
+                                >
+                                  {"fullName" in participant
+                                    ? participant.fullName
+                                    : participant.name}
+                                  {isSelected ? " (already assigned)" : ""}
+                                </option>
+                              );
+                            })}
+                          </select>
                         </div>
                       </div>
                     </div>

@@ -1,9 +1,18 @@
 import { useState, useEffect } from "react";
-import { Event, EventType, EventStatus, Category } from "../../types";
+import {
+  Event,
+  EventType,
+  EventStatus,
+  Category,
+  Player,
+  House,
+} from "../../types";
 import {
   eventRepository,
   categoryRepository,
   configRepository,
+  playerRepository,
+  houseRepository,
 } from "../../database";
 import ResultsRecordingModal from "../../components/admin/ResultsRecordingModal";
 import ExpandableRow from "../../components/ExpandableRow";
@@ -11,6 +20,9 @@ import ExpandableRow from "../../components/ExpandableRow";
 const EventManagement = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [participants, setParticipants] = useState<
+    Record<string, Player | House>
+  >({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -43,6 +55,26 @@ const EventManagement = () => {
     setIsLoading(true);
     setError(null);
 
+    // Load participants for name lookup
+    const loadParticipants = async () => {
+      try {
+        const [players, houses] = await Promise.all([
+          playerRepository.getAllPlayers(),
+          houseRepository.getAllHouses(),
+        ]);
+
+        const participantsMap: Record<string, Player | House> = {};
+        players.forEach((player) => (participantsMap[player.id] = player));
+        houses.forEach((house) => (participantsMap[house.id] = house));
+
+        setParticipants(participantsMap);
+      } catch (err) {
+        console.error("Error loading participants:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     // Set up real-time listeners
     const unsubscribeEvents = eventRepository.subscribeToAllEvents(
       (eventsData) => {
@@ -56,7 +88,7 @@ const EventManagement = () => {
       }
     );
 
-    setIsLoading(false);
+    loadParticipants();
 
     // Cleanup listeners on unmount
     return () => {
@@ -281,6 +313,31 @@ const EventManagement = () => {
   const getCategoryName = (categoryId: string) => {
     const category = categories.find((c) => c.id === categoryId);
     return category?.label || "Unknown";
+  };
+
+  const getParticipantName = (participantId: string) => {
+    const participant = participants[participantId];
+    if (!participant) return "Unknown";
+
+    if ("fullName" in participant) {
+      return participant.fullName; // Player
+    } else {
+      return participant.name; // House
+    }
+  };
+
+  const getEventChampion = (event: Event) => {
+    if (!event.results || event.results.length === 0) {
+      return null;
+    }
+
+    const winner = event.results.find((r) => r.placement === 1);
+    if (!winner) return null;
+
+    return {
+      name: getParticipantName(winner.participantId),
+      score: event.scoring[winner.placement] || 0,
+    };
   };
 
   // Helper function to get emoji for category
@@ -1162,7 +1219,18 @@ const EventManagement = () => {
                             fontWeight: "500",
                           }}
                         >
-                          🏆 {Object.entries(event.scoring).length} placements
+                          {event.status === "completed"
+                            ? (() => {
+                                const champion = getEventChampion(event);
+                                return champion ? (
+                                  <span>🥇 {champion.name}</span>
+                                ) : (
+                                  "🏆 No results"
+                                );
+                              })()
+                            : `🏆 ${
+                                Object.entries(event.scoring).length
+                              } placements`}
                         </div>
                         <small
                           style={{
@@ -1370,38 +1438,6 @@ const EventManagement = () => {
                     {event.status === "completed" && (
                       <>
                         <button
-                          onClick={() => handleCompleteEvent(event)}
-                          className="btn family-element"
-                          style={{
-                            background: "var(--bg-elevated)",
-                            color: "var(--text-primary)",
-                            border: "2px solid var(--border-color)",
-                            borderRadius: "var(--radius-lg)",
-                            padding: "var(--space-2)",
-                            minHeight: "40px",
-                            minWidth: "40px",
-                            transition: "all 0.3s ease",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "var(--info-50)";
-                            e.currentTarget.style.borderColor =
-                              "var(--info-color)";
-                            e.currentTarget.style.color = "var(--info-color)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background =
-                              "var(--bg-elevated)";
-                            e.currentTarget.style.borderColor =
-                              "var(--border-color)";
-                            e.currentTarget.style.color = "var(--text-primary)";
-                          }}
-                        >
-                          👁️
-                        </button>
-                        <button
                           onClick={() => handleResetEvent(event)}
                           className="btn family-element"
                           style={{
@@ -1441,91 +1477,211 @@ const EventManagement = () => {
                 </div>
               }
             >
-              {/* Expanded Content - Point System Details */}
+              {/* Expanded Content - Point System Details or Results */}
               <div
                 className="d-flex flex-column"
                 style={{ gap: "var(--space-3)" }}
               >
-                {/* Point System Details - Following Agenda page pattern */}
-                <div
-                  className="p-3 rounded"
-                  style={{
-                    background: "var(--bg-elevated)",
-                    border: `1px solid ${eventColor}`,
-                  }}
-                >
-                  <div className="mb-3">
-                    <div className="d-flex align-items-center mb-2">
-                      <span
+                {event.status === "completed" ? (
+                  /* Results Display for Completed Events */
+                  <>
+                    {event.results && event.results.length > 0 ? (
+                      <div
+                        className="p-3 rounded"
                         style={{
-                          fontSize: "1.5rem",
-                          marginRight: "var(--space-2)",
+                          background: "var(--bg-elevated)",
+                          border: `1px solid ${eventColor}`,
                         }}
                       >
-                        🏆
-                      </span>
-                      <span
-                        className="fw-bold"
-                        style={{
-                          color: "var(--text-primary)",
-                          fontFamily: "Fredoka, sans-serif",
-                        }}
-                      >
-                        Point System ({Object.entries(event.scoring).length}{" "}
-                        placements)
-                      </span>
-                    </div>
-                    <div
-                      className="d-flex flex-wrap"
-                      style={{ gap: "var(--space-2)" }}
-                    >
-                      {Object.entries(event.scoring)
-                        .sort(([a], [b]) => parseInt(a) - parseInt(b))
-                        .map(([placement, points]) => (
-                          <span
-                            key={placement}
-                            className="badge"
+                        <div className="mb-3">
+                          <div className="d-flex align-items-center mb-2">
+                            <span
+                              style={{
+                                fontSize: "1.5rem",
+                                marginRight: "var(--space-2)",
+                              }}
+                            >
+                              🏆
+                            </span>
+                            <span
+                              className="fw-bold"
+                              style={{
+                                color: "var(--text-primary)",
+                                fontFamily: "Fredoka, sans-serif",
+                              }}
+                            >
+                              Final Results
+                            </span>
+                          </div>
+                          <div
+                            className="d-flex flex-column"
+                            style={{ gap: "var(--space-2)" }}
+                          >
+                            {event.results
+                              .sort((a, b) => a.placement - b.placement)
+                              .map((result) => (
+                                <div
+                                  key={result.participantId}
+                                  className="d-flex justify-content-between align-items-center p-2 rounded"
+                                  style={{
+                                    background: "var(--bg-surface)",
+                                    border: "1px solid var(--border-color)",
+                                  }}
+                                >
+                                  <div className="d-flex align-items-center">
+                                    <span
+                                      style={{
+                                        fontSize: "1.2rem",
+                                        marginRight: "var(--space-2)",
+                                      }}
+                                    >
+                                      {result.placement === 1
+                                        ? "🥇"
+                                        : result.placement === 2
+                                        ? "🥈"
+                                        : result.placement === 3
+                                        ? "🥉"
+                                        : `#${result.placement}`}
+                                    </span>
+                                    <span
+                                      className="fw-medium"
+                                      style={{
+                                        fontFamily: "Fredoka, sans-serif",
+                                      }}
+                                    >
+                                      {getParticipantName(result.participantId)}
+                                    </span>
+                                  </div>
+                                  <span
+                                    className="badge"
+                                    style={{
+                                      background: eventColor,
+                                      color: "white",
+                                      fontSize: "var(--font-size-sm)",
+                                      fontFamily: "Fredoka, sans-serif",
+                                      fontWeight: "700",
+                                    }}
+                                  >
+                                    {event.scoring[result.placement] || 0} pts
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <small
                             style={{
-                              background:
-                                placement === "1"
-                                  ? "var(--warning-color)"
-                                  : placement === "2"
-                                  ? "#C0C0C0"
-                                  : placement === "3"
-                                  ? "#CD7F32"
-                                  : "var(--info-color)",
-                              color: "white",
+                              color: "var(--text-secondary)",
                               fontSize: "var(--font-size-sm)",
-                              padding: "var(--space-2) var(--space-4)",
-                              fontFamily: "Fredoka, sans-serif",
-                              fontWeight: "700",
-                              textShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
+                              fontWeight: "500",
                             }}
                           >
-                            {placement === "1"
-                              ? "🥇"
-                              : placement === "2"
-                              ? "🥈"
-                              : placement === "3"
-                              ? "🥉"
-                              : `#${placement}`}{" "}
-                            → {points}pts
-                          </span>
-                        ))}
+                            Event completed successfully! 🎉
+                          </small>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className="p-3 rounded text-center"
+                        style={{
+                          background: "var(--bg-elevated)",
+                          border: `1px solid ${eventColor}`,
+                        }}
+                      >
+                        <span
+                          style={{
+                            color: "var(--text-secondary)",
+                            fontSize: "var(--font-size-base)",
+                            fontWeight: "500",
+                          }}
+                        >
+                          No results recorded for this event
+                        </span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Point System Details for Non-Completed Events */
+                  <div
+                    className="p-3 rounded"
+                    style={{
+                      background: "var(--bg-elevated)",
+                      border: `1px solid ${eventColor}`,
+                    }}
+                  >
+                    <div className="mb-3">
+                      <div className="d-flex align-items-center mb-2">
+                        <span
+                          style={{
+                            fontSize: "1.5rem",
+                            marginRight: "var(--space-2)",
+                          }}
+                        >
+                          🏆
+                        </span>
+                        <span
+                          className="fw-bold"
+                          style={{
+                            color: "var(--text-primary)",
+                            fontFamily: "Fredoka, sans-serif",
+                          }}
+                        >
+                          Point System ({Object.entries(event.scoring).length}{" "}
+                          placements)
+                        </span>
+                      </div>
+                      <div
+                        className="d-flex flex-wrap"
+                        style={{ gap: "var(--space-2)" }}
+                      >
+                        {Object.entries(event.scoring)
+                          .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                          .map(([placement, points]) => (
+                            <span
+                              key={placement}
+                              className="badge"
+                              style={{
+                                background:
+                                  placement === "1"
+                                    ? "var(--warning-color)"
+                                    : placement === "2"
+                                    ? "#C0C0C0"
+                                    : placement === "3"
+                                    ? "#CD7F32"
+                                    : "var(--info-color)",
+                                color: "white",
+                                fontSize: "var(--font-size-sm)",
+                                padding: "var(--space-2) var(--space-4)",
+                                fontFamily: "Fredoka, sans-serif",
+                                fontWeight: "700",
+                                textShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
+                              }}
+                            >
+                              {placement === "1"
+                                ? "🥇"
+                                : placement === "2"
+                                ? "🥈"
+                                : placement === "3"
+                                ? "🥉"
+                                : `#${placement}`}{" "}
+                              → {points}pts
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <small
+                        style={{
+                          color: "var(--text-secondary)",
+                          fontSize: "var(--font-size-sm)",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Higher placements earn more points for your house! 🏠✨
+                      </small>
                     </div>
                   </div>
-                  <div className="text-center">
-                    <small
-                      style={{
-                        color: "var(--text-secondary)",
-                        fontSize: "var(--font-size-sm)",
-                        fontWeight: "500",
-                      }}
-                    >
-                      Higher placements earn more points for your house! 🏠✨
-                    </small>
-                  </div>
-                </div>
+                )}
 
                 {/* Event Details */}
                 <div
