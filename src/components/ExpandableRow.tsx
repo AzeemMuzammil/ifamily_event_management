@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import { useState, ReactNode, FC, CSSProperties } from "react";
 
 interface ExpandableRowProps {
-  children: React.ReactNode;
-  previewContent: React.ReactNode;
+  children: ReactNode;
+  previewContent: ReactNode;
   isExpanded?: boolean;
   onToggle?: (expanded: boolean) => void;
   accentColor?: string;
@@ -10,7 +10,7 @@ interface ExpandableRowProps {
   showExpandButton?: boolean;
 }
 
-const ExpandableRow: React.FC<ExpandableRowProps> = ({
+const ExpandableRow: FC<ExpandableRowProps> = ({
   children,
   previewContent,
   isExpanded: controlledExpanded,
@@ -33,7 +33,7 @@ const ExpandableRow: React.FC<ExpandableRowProps> = ({
     }
   };
 
-  const rowStyle: React.CSSProperties = {
+  const rowStyle: CSSProperties = {
     background: "var(--bg-surface)",
     border: `2px solid ${isExpanded ? accentColor : "var(--border-color)"}`,
     borderRadius: "var(--radius-xl)",
@@ -48,7 +48,7 @@ const ExpandableRow: React.FC<ExpandableRowProps> = ({
     cursor: showExpandButton ? "pointer" : "default",
   };
 
-  const previewStyle: React.CSSProperties = {
+  const previewStyle: CSSProperties = {
     padding: "var(--space-4)",
     cursor: showExpandButton ? "pointer" : "default",
     display: "flex",
@@ -60,14 +60,14 @@ const ExpandableRow: React.FC<ExpandableRowProps> = ({
     position: "relative",
   };
 
-  const expandedStyle: React.CSSProperties = {
+  const expandedStyle: CSSProperties = {
     maxHeight: isExpanded ? "1000px" : "0",
     overflow: "hidden",
     transition: "max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
     background: "var(--bg-elevated)",
   };
 
-  const expandButtonStyle: React.CSSProperties = {
+  const expandButtonStyle: CSSProperties = {
     background: isExpanded ? accentColor : "var(--bg-elevated)",
     color: isExpanded ? "white" : "var(--text-secondary)",
     border: `2px solid ${isExpanded ? "transparent" : "var(--border-color)"}`,

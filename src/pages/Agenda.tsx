@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Event, Category, Player, House } from "../types";
 import {
   eventRepository,

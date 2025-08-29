@@ -1,4 +1,4 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -11,7 +11,7 @@ interface State {
 
 class ErrorBoundary extends Component<Props, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -19,48 +19,134 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error boundary caught an error:', error, errorInfo);
+    console.error("Error boundary caught an error:", error, errorInfo);
   }
 
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="container-fluid py-4">
+        <div
+          className="container-fluid mobile-spacing-md"
+          style={{ paddingTop: "var(--space-6)" }}
+        >
           <div className="row justify-content-center">
-            <div className="col-md-6">
-              <div className="card border-danger">
-                <div className="card-header bg-danger text-white">
-                  <h5 className="card-title mb-0">
-                    <i className="bi bi-exclamation-triangle me-2"></i>
-                    Something went wrong
-                  </h5>
+            <div className="col-md-8 col-lg-6">
+              <div
+                className="text-center"
+                style={{
+                  background: "var(--bg-elevated)",
+                  borderRadius: "var(--radius-2xl)",
+                  border: "2px solid var(--border-accent)",
+                  boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
+                  padding: "var(--space-6)",
+                  margin: "var(--space-4) 0",
+                }}
+              >
+                <div
+                  style={{ fontSize: "4rem", marginBottom: "var(--space-4)" }}
+                >
+                  😱
                 </div>
-                <div className="card-body">
-                  <p className="mb-3">
-                    An unexpected error occurred. This has been logged for investigation.
-                  </p>
-                  {this.state.error && (
-                    <details className="mb-3">
-                      <summary className="text-muted small">Error details</summary>
-                      <pre className="mt-2 p-2 bg-light rounded small text-muted">
-                        {this.state.error.message}
-                      </pre>
-                    </details>
-                  )}
-                  <div className="d-flex gap-2">
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => window.location.reload()}
+                <h4
+                  style={{
+                    color: "var(--text-secondary)",
+                    marginBottom: "var(--space-3)",
+                    fontFamily: "Fredoka, sans-serif",
+                    fontWeight: "600",
+                  }}
+                >
+                  Oops! Something went wrong
+                </h4>
+                <p
+                  style={{
+                    color: "var(--text-muted)",
+                    fontSize: "var(--font-size-lg)",
+                    marginBottom: "var(--space-4)",
+                    fontFamily: "Fredoka, sans-serif",
+                  }}
+                >
+                  An unexpected error occurred. Don't worry, this has been
+                  logged for investigation! ✨
+                </p>
+
+                {this.state.error && (
+                  <details
+                    style={{
+                      marginBottom: "var(--space-4)",
+                      textAlign: "left",
+                    }}
+                  >
+                    <summary
+                      style={{
+                        color: "var(--text-secondary)",
+                        fontSize: "var(--font-size-sm)",
+                        fontFamily: "Fredoka, sans-serif",
+                        cursor: "pointer",
+                        textAlign: "center",
+                        marginBottom: "var(--space-2)",
+                      }}
                     >
-                      Reload Page
-                    </button>
-                    <button
-                      className="btn btn-outline-secondary"
-                      onClick={() => this.setState({ hasError: false, error: undefined })}
+                      🔍 Technical Details
+                    </summary>
+                    <pre
+                      style={{
+                        background: "var(--bg-surface)",
+                        border: "2px solid var(--border-color)",
+                        borderRadius: "var(--radius-lg)",
+                        padding: "var(--space-4)",
+                        fontSize: "var(--font-size-sm)",
+                        color: "var(--text-muted)",
+                        fontFamily: "monospace",
+                        overflow: "auto",
+                        whiteSpace: "pre-wrap",
+                      }}
                     >
-                      Try Again
-                    </button>
-                  </div>
+                      {this.state.error.message}
+                    </pre>
+                  </details>
+                )}
+
+                <div className="d-flex justify-content-center mobile-gap-md flex-wrap">
+                  <button
+                    className="btn family-element"
+                    onClick={() => window.location.reload()}
+                    style={{
+                      background:
+                        "linear-gradient(135deg, var(--primary-color), var(--accent-purple))",
+                      color: "white",
+                      border: "2px solid rgba(139, 95, 255, 0.3)",
+                      borderRadius: "var(--radius-xl)",
+                      padding: "var(--space-3) var(--space-5)",
+                      fontSize: "var(--font-size-base)",
+                      fontWeight: "600",
+                      fontFamily: "Fredoka, sans-serif",
+                      boxShadow: "0 8px 25px rgba(139, 95, 255, 0.4)",
+                      transition: "all 0.3s ease",
+                      minHeight: "48px",
+                    }}
+                  >
+                    🔄 Reload Page
+                  </button>
+                  <button
+                    className="btn family-element"
+                    onClick={() =>
+                      this.setState({ hasError: false, error: undefined })
+                    }
+                    style={{
+                      background: "var(--bg-surface)",
+                      color: "var(--text-primary)",
+                      border: "2px solid var(--border-color)",
+                      borderRadius: "var(--radius-xl)",
+                      padding: "var(--space-3) var(--space-5)",
+                      fontSize: "var(--font-size-base)",
+                      fontWeight: "500",
+                      fontFamily: "Fredoka, sans-serif",
+                      transition: "all 0.3s ease",
+                      minHeight: "48px",
+                    }}
+                  >
+                    🔄 Try Again
+                  </button>
                 </div>
               </div>
             </div>
