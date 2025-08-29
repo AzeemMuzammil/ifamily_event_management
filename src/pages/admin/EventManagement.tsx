@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { Event, EventType, EventStatus, Category } from "../../types";
-import { eventRepository, categoryRepository } from "../../database";
+import {
+  eventRepository,
+  categoryRepository,
+  configRepository,
+} from "../../database";
 import ResultsRecordingModal from "../../components/admin/ResultsRecordingModal";
 import ExpandableRow from "../../components/ExpandableRow";
 
@@ -79,6 +83,29 @@ const EventManagement = () => {
     }
   };
 
+  // Load placement configuration for a category and event type
+  const loadPlacementConfig = async (
+    categoryId: string,
+    eventType: EventType
+  ) => {
+    try {
+      const config = await configRepository.getPlacementConfig(
+        categoryId,
+        eventType
+      );
+      if (config && config.placements) {
+        setScoringConfig(config.placements);
+      } else {
+        // Use default if no config exists
+        setScoringConfig({ 1: 5, 2: 3, 3: 1 });
+      }
+    } catch (error) {
+      console.error("Error loading placement config:", error);
+      // Use default on error
+      setScoringConfig({ 1: 5, 2: 3, 3: 1 });
+    }
+  };
+
   const resetForm = () => {
     setEventName("");
     setEventType("individual");
@@ -87,6 +114,13 @@ const EventManagement = () => {
     setEditingEvent(null);
     setShowCreateForm(false);
   };
+
+  // Load placement config when category or event type changes (only for new events, not when editing)
+  useEffect(() => {
+    if (!editingEvent && selectedCategoryId && eventType) {
+      loadPlacementConfig(selectedCategoryId, eventType);
+    }
+  }, [selectedCategoryId, eventType, editingEvent]);
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();

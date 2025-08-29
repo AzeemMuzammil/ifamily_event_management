@@ -1,29 +1,32 @@
-import { useState } from 'react';
-import { AuthProvider } from './contexts/AuthContext';
-import ErrorBoundary from './components/ErrorBoundary';
-import Header from './components/Header';
-import Navigation from './components/Navigation';
-import Dashboard from './pages/Dashboard';
-import Agenda from './pages/Agenda';
-import PlayerManagement from './pages/admin/PlayerManagement';
-import HouseManagement from './pages/admin/HouseManagement';
-import EventManagement from './pages/admin/EventManagement';
+import { useState } from "react";
+import { AuthProvider } from "./contexts/AuthContext";
+import ErrorBoundary from "./components/ErrorBoundary";
+import Header from "./components/Header";
+import Navigation from "./components/Navigation";
+import Dashboard from "./pages/Dashboard";
+import Agenda from "./pages/Agenda";
+import PlayerManagement from "./pages/admin/PlayerManagement";
+import HouseManagement from "./pages/admin/HouseManagement";
+import EventManagement from "./pages/admin/EventManagement";
+import ConfigurationManagement from "./pages/admin/ConfigurationManagement";
 
 function App() {
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState("dashboard");
 
   const renderView = () => {
     switch (currentView) {
-      case 'dashboard':
+      case "dashboard":
         return <Dashboard />;
-      case 'agenda':
+      case "agenda":
         return <Agenda />;
-      case 'admin-players':
+      case "admin-players":
         return <PlayerManagement />;
-      case 'admin-houses':
+      case "admin-houses":
         return <HouseManagement />;
-      case 'admin-events':
+      case "admin-events":
         return <EventManagement />;
+      case "admin-config":
+        return <ConfigurationManagement />;
       default:
         return <Dashboard />;
     }
@@ -36,9 +39,7 @@ function App() {
           <Header />
           <Navigation currentView={currentView} onViewChange={setCurrentView} />
           <main className="pb-4">
-            <ErrorBoundary>
-              {renderView()}
-            </ErrorBoundary>
+            <ErrorBoundary>{renderView()}</ErrorBoundary>
           </main>
         </div>
       </AuthProvider>

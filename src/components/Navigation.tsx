@@ -44,6 +44,12 @@ const Navigation = ({ currentView, onViewChange }: NavigationProps) => {
       icon: "🎪",
       description: "Create amazing activities",
     },
+    {
+      id: "admin-config",
+      name: "⚙️ Game Configuration",
+      icon: "⚙️",
+      description: "Configure placement points",
+    },
   ];
 
   const views = isAuthenticated ? [...publicViews, ...adminViews] : publicViews;
